@@ -21,7 +21,7 @@
 
 ## 2. 数据库设计
 
-数据库命名为 `weibo_sys`，字符集采用 `utf8_general_ci` 
+数据库命名为 `weibo_sys`，字符集采用 `utf8mb4_unicode_ci` 
 
 ### 2.1 用户表 (`users`)
 用于存储用户基础信息及权限标识。
