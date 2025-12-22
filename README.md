@@ -94,7 +94,8 @@
 ```text
 /Project_Root
 │  index.php            // 系统主页（微博流、发布框）
-│  login.php            // 用户登录/注册页
+│  login.php            // 用户登录页
+|  register.php         // 用户注册页
 │  admin.php            // 管理员后台（删帖、封号）
 │  profile.php          // 个人中心（管理自己的内容）
 │  search.php           // 搜索结果页
