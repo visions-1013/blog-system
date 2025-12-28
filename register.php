@@ -1,5 +1,106 @@
+<?php
+
+require_once 'config/db_connect.php';
+
+$serverMsg = '';
+$serverMsgColor = 'darkred';
+$oldUsername = '';
+
+//和前端逻辑差不多，就是重新检查一遍
+function validate_username(string $name): string {
+    $name = trim($name);
+    if ($name === '') return '用户名不能为空';
+    if (mb_strlen($name) < 2 || mb_strlen($name) > 10) return '用户名长度需在2-10位之间';
+    if (!preg_match('/^[a-zA-Z0-9_]+$/', $name)) return '用户名仅支持字母、数字和下划线';
+    return '';
+}
+function validate_password(string $pass): string {
+    $pass = trim($pass);
+    if ($pass === '') return '密码不能为空';
+    if (strlen($pass) < 6 || strlen($pass) > 16) return '密码长度需在6-16位之间';
+    return '';
+}
+
+//
+/* ========= 数据库占位，暂时默认成功 ========= */
+function db_user_exists(string $username): bool {
+    //    global $conn;
+    //
+    //    $sql = "SELECT 1 FROM users WHERE username = ? LIMIT 1";
+    //    $stmt = $conn->prepare($sql);
+    //    if (!$stmt) return false;
+    //
+    //    $stmt->bind_param("s", $username);
+    //    $stmt->execute();
+    //
+    //
+    //    $stmt->store_result();
+    //    $exists = ($stmt->num_rows > 0);
+    //
+    //    $stmt->close();
+    //    return $exists;
+    //
+    //
+    return false; // 默认不存在
+}
+function db_create_user(string $username, string $passwordPlain): bool {
+    //    global $conn;
+    //    $hash = password_hash($passwordPlain, PASSWORD_DEFAULT);
+    //    $role = 0;
+    //    $avatar = 'default.png';
+    //    $sql = "INSERT INTO users (username, password, role, avatar) VALUES (?, ?, ?, ?)";
+    //
+    //    $stmt = $conn->prepare($sql);
+    //    if (!$stmt) return false;
+    //
+    //    $stmt->bind_param("ssis", $username, $hash, $role, $avatar);
+    //    $ok = $stmt->execute();
+    //
+    //    $stmt->close();
+    //    return $ok;
+    //
+    //
+    return true; // 默认成功
+}
+/* ==================================================== */
+//
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username   = isset($_POST['username']) ? trim((string)$_POST['username']) : '';
+    $password   = isset($_POST['password']) ? (string)$_POST['password'] : '';
+    $password_2 = isset($_POST['password_2']) ? (string)$_POST['password_2'] : '';
+    $oldUsername = $username;
+
+    $err = validate_username($username);
+    if ($err === '') $err = validate_password($password);
+    if ($err === '' && $password !== $password_2) $err = '两次输入的密码不一致';
+
+    if ($err !== '') {
+        $serverMsg = '无法注册：' . $err;
+        $serverMsgColor = 'darkred';
+    } else {
+        if (db_user_exists($username)) {
+            $serverMsg = '无法注册：该用户名已存在';
+            $serverMsgColor = 'darkred';
+        } else {
+            if (db_create_user($username, $password)) {
+                $serverMsg = '注册成功！';
+                $serverMsgColor = 'green';
+                
+                //成功注册后，跳转登录页面
+                header("Location: login.php"); 
+                exit;
+            } else {
+                $serverMsg = '注册失败';
+                $serverMsgColor = 'darkred';
+            }
+        }
+    }
+}
+?>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
 		<meta charset="utf-8">
 		<title>XX客户端注册界面</title>
@@ -7,7 +108,7 @@
 	<body>
 		<h3>请输入您的用户信息!</h3>
 		<form action="" method="post" onsubmit="return checkAll()">
-			<p><b>用户昵称:</b><input type="text" name="username" id="username" placeholder="请输入您的用户名！"/></p>
+			<p><b>用户昵称:</b><input type="text" name="username" id="username" placeholder="请输入您的用户名！" value="<?php echo htmlspecialchars($oldUsername, ENT_QUOTES, 'UTF-8'); ?>"/></p>
 			<p id="errInfo1" style="color:darkred">&nbsp&nbsp</p>
 			<p><b>登录密码:</b><input type="password" name="password" id="password" placeholder="请输入6-16位密码，支持字母、数字和特殊字符！"/></p>
 			<p id="errInfo2" style="color:darkred">&nbsp&nbsp</p>
@@ -15,7 +116,9 @@
 			<p id="errInfo3" style="color:darkred">&nbsp&nbsp</p>
 			<p><input type="submit" name="submit" id="submit" value="现在注册!" />
 			<input type="reset" name="reset" id="reset" value="重置信息!"></p>
-			<p id="errInfo" style="color:darkred">&nbsp&nbsp</p>
+			<p id="errInfo" style="color:darkred">
+                <?php echo $serverMsg !== '' ? htmlspecialchars($serverMsg, ENT_QUOTES, 'UTF-8') : '&nbsp&nbsp'; ?>
+            </p>
 		</form>
 	</body>
 	<script>
