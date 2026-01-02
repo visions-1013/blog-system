@@ -26,6 +26,7 @@ CREATE TABLE `posts` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '微博ID',
   `user_id` int(11) NOT NULL COMMENT '发布者ID',
   `content` text NOT NULL COMMENT '微博正文',
+  `image` varchar(255) DEFAULT NULL COMMENT '图片路径',
   `likes_count` int(11) DEFAULT 0 COMMENT '点赞数缓存',
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '发布时间',
   PRIMARY KEY (`id`),
