@@ -1,3 +1,76 @@
+<?php
+session_start();
+require_once __DIR__ . '/config/db_connect.php';
+
+$serverMsg = '';
+$serverMsgColor = 'darkred';
+$oldUsername = '';
+
+function validate_username(string $name): string {
+    $name = trim($name);
+    if ($name === '') return '用户名不能为空';
+    if (mb_strlen($name) < 2 || mb_strlen($name) > 10) return '用户名长度需在2-10位之间';
+    if (!preg_match('/^[a-zA-Z0-9_]+$/', $name)) return '用户名仅支持字母、数字和下划线';
+    return '';
+}
+
+function validate_password(string $pass): string {
+    $pass = trim($pass);
+    if ($pass === '') return '密码不能为空';
+    if (strlen($pass) < 6 || strlen($pass) > 16) return '密码长度需在6-16位之间';
+    return '';
+}
+
+// 已登录就直接回主页
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_SESSION['user_id'])) {
+    header('Location: index.php');
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = isset($_POST['username']) ? trim((string)$_POST['username']) : '';
+    $password = isset($_POST['password']) ? (string)$_POST['password'] : '';
+    $oldUsername = $username;
+
+    $err = validate_username($username);
+    if ($err === '') $err = validate_password($password);
+
+    if ($err !== '') {
+        $serverMsg = '无法登录：' . $err;
+        $serverMsgColor = 'darkred';
+    } else {
+        try {
+            $sql = "SELECT id, username, password, role, avatar FROM users WHERE username = ? LIMIT 1";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$username]);
+            $user = $stmt->fetch();
+
+            if (!$user) {
+                $serverMsg = '用户名或密码错误';
+                $serverMsgColor = 'darkred';
+            } else {
+                $inputHash = md5($password);
+                if (!hash_equals((string)$user['password'], $inputHash)) {
+                    $serverMsg = '用户名或密码错误';
+                    $serverMsgColor = 'darkred';
+                } else {
+                    session_regenerate_id(true);
+                    $_SESSION['user_id'] = (int)$user['id'];
+                    $_SESSION['username'] = (string)$user['username'];
+                    $_SESSION['role'] = (int)$user['role'];
+                    $_SESSION['avatar'] = (string)$user['avatar'];
+
+                    header('Location: index.php');
+                    exit;
+                }
+            }
+        } catch (PDOException $e) {
+            $serverMsg = '登录失败：数据库错误';
+            $serverMsgColor = 'darkred';
+        }
+    }
+}
+?>
 <!DOCTYPE html>
 <html>
 	<head>
@@ -7,13 +80,19 @@
 	<body>
 		<h3>请您输入您的用户信息!</h3>
 		<form action="" method="post" onsubmit="return checkAll()">
-			<p><b>用户昵称:</b><input type="text" name="username" id="username" placeholder="请输入您的用户名！"/></p>
+			<p><b>用户昵称:</b>
+                <!-- 失败后保留用户刚输入的 username -->
+                <input type="text" name="username" id="username" placeholder="请输入您的用户名！" value="<?php echo htmlspecialchars($oldUsername, ENT_QUOTES, 'UTF-8'); ?>"/>
+            </p>
 			<p id="errInfo1" style="color:darkred">&nbsp&nbsp</p>
 			<p><b>登录密码:</b><input type="password" name="password" id="password" placeholder="请输入6-16位密码，支持字母、数字和特殊字符！"/></p>
 			<p id="errInfo2" style="color:darkred">&nbsp&nbsp</p>
 			<p><input type="submit" name="submit" id="submit" value="现在登录!" />
 			<input type="reset" name="reset" id="reset" value="重置信息!"></p>
-			<p id="errInfo" style="color:darkred">&nbsp&nbsp</p>
+            <p id="errInfo" style="color:darkred">
+                <!--显示错误信息 -->
+                <?php echo $serverMsg !== '' ? htmlspecialchars($serverMsg, ENT_QUOTES, 'UTF-8') : '&nbsp&nbsp'; ?>
+            </p>
 			</form>
 	</body>
 	<script>
