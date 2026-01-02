@@ -43,6 +43,7 @@
 | `id` | INT | 11 | 微博ID | PK, Auto Increment |
 | `user_id` | INT | 11 | 发布者ID | FK -> users.id |
 | `content` | TEXT | - | 微博正文 | Not Null |
+| `image` | VARCHAR | 255 | 图片路径 | Nullable |
 | `likes_count`| INT | 11 | 点赞数缓存 | Default 0 |
 | `created_at` | DATETIME | - | 发布时间 | Default CURRENT_TIMESTAMP |
 
