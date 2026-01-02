@@ -10,7 +10,7 @@
             box-sizing: border-box;
         }
         /* 全局body样式：避免页面溢出、统一字体 */
-        body {
+         body {
             background-color: #f5f5f5;
             font-family: "微软雅黑", sans-serif;
             color: #333; /* 统一全局文字颜色，提升可读性 */
