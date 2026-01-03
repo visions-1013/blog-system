@@ -1,6 +1,6 @@
 <?php
 
-require_once 'config/db_connect.php';
+require_once __DIR__ . '/config/db_connect.php';
 
 $serverMsg = '';
 $serverMsgColor = 'darkred';
@@ -21,49 +21,34 @@ function validate_password(string $pass): string {
     return '';
 }
 
-//
-/* ========= 数据库占位，暂时默认成功 ========= */
+
 function db_user_exists(string $username): bool {
-    //    global $conn;
-    //
-    //    $sql = "SELECT 1 FROM users WHERE username = ? LIMIT 1";
-    //    $stmt = $conn->prepare($sql);
-    //    if (!$stmt) return false;
-    //
-    //    $stmt->bind_param("s", $username);
-    //    $stmt->execute();
-    //
-    //
-    //    $stmt->store_result();
-    //    $exists = ($stmt->num_rows > 0);
-    //
-    //    $stmt->close();
-    //    return $exists;
-    //
-    //
-    return false; // 默认不存在
+    global $pdo;
+
+    $sql = "SELECT 1 FROM users WHERE username = ? LIMIT 1";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$username]);
+
+    return (bool)$stmt->fetchColumn();
 }
-function db_create_user(string $username, string $passwordPlain): bool {
-    //    global $conn;
-    //    $hash = password_hash($passwordPlain, PASSWORD_DEFAULT);
-    //    $role = 0;
-    //    $avatar = 'default.png';
-    //    $sql = "INSERT INTO users (username, password, role, avatar) VALUES (?, ?, ?, ?)";
-    //
-    //    $stmt = $conn->prepare($sql);
-    //    if (!$stmt) return false;
-    //
-    //    $stmt->bind_param("ssis", $username, $hash, $role, $avatar);
-    //    $ok = $stmt->execute();
-    //
-    //    $stmt->close();
-    //    return $ok;
-    //
-    //
-    return true; // 默认成功
+
+function db_create_user(string $username, string $passwordPlain): bool
+{
+    global $pdo;
+    $hash = md5($passwordPlain);
+
+    $role = 0;
+    $avatar = 'default.png';
+
+    $sql = "INSERT INTO users (username, password, role, avatar) VALUES (?, ?, ?, ?)";
+    $stmt = $pdo->prepare($sql);
+
+    try {
+        return $stmt->execute([$username, $hash, $role, $avatar]);
+    } catch (PDOException $e) {
+        return false;
+    }
 }
-/* ==================================================== */
-//
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
