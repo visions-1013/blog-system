@@ -32,8 +32,7 @@ function db_user_exists(string $username){
     return (bool)$stmt->fetchColumn();
 }
 
-function db_create_user(string $username, string $passwordPlain): bool
-{
+function db_create_user(string $username, string $passwordPlain){
     global $pdo;
     $hash = md5($passwordPlain);
 
