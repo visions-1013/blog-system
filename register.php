@@ -7,14 +7,14 @@ $serverMsgColor = 'darkred';
 $oldUsername = '';
 
 //和前端逻辑差不多，就是重新检查一遍
-function validate_username(string $name): string {
+function validate_username(string $name) {
     $name = trim($name);
     if ($name === '') return '用户名不能为空';
     if (mb_strlen($name) < 2 || mb_strlen($name) > 10) return '用户名长度需在2-10位之间';
     if (!preg_match('/^[a-zA-Z0-9_]+$/', $name)) return '用户名仅支持字母、数字和下划线';
     return '';
 }
-function validate_password(string $pass): string {
+function validate_password(string $pass) {
     $pass = trim($pass);
     if ($pass === '') return '密码不能为空';
     if (strlen($pass) < 6 || strlen($pass) > 16) return '密码长度需在6-16位之间';
@@ -22,7 +22,7 @@ function validate_password(string $pass): string {
 }
 
 
-function db_user_exists(string $username): bool {
+function db_user_exists(string $username){
     global $pdo;
 
     $sql = "SELECT 1 FROM users WHERE username = ? LIMIT 1";
@@ -32,8 +32,7 @@ function db_user_exists(string $username): bool {
     return (bool)$stmt->fetchColumn();
 }
 
-function db_create_user(string $username, string $passwordPlain): bool
-{
+function db_create_user(string $username, string $passwordPlain){
     global $pdo;
     $hash = md5($passwordPlain);
 
