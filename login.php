@@ -6,7 +6,7 @@ $serverMsg = '';
 $serverMsgColor = 'darkred';
 $oldUsername = '';
 
-function validate_username(string $name): string {
+function validate_username(string $name) {
     $name = trim($name);
     if ($name === '') return '用户名不能为空';
     if (mb_strlen($name) < 2 || mb_strlen($name) > 10) return '用户名长度需在2-10位之间';
@@ -14,7 +14,7 @@ function validate_username(string $name): string {
     return '';
 }
 
-function validate_password(string $pass): string {
+function validate_password(string $pass) {
     $pass = trim($pass);
     if ($pass === '') return '密码不能为空';
     if (strlen($pass) < 6 || strlen($pass) > 16) return '密码长度需在6-16位之间';
