@@ -9,7 +9,7 @@ $oldUsername = '';
 function validate_username(string $name) {
     $name = trim($name);
     if ($name === '') return '用户名不能为空';
-    if (mb_strlen($name) < 2 || mb_strlen($name) > 10) return '用户名长度需在2-10位之间';
+    if (mb_strlen($name, 'utf-8') < 2 || mb_strlen($name, 'utf-8') > 10) return '用户名长度需在2-10位之间';
     if (!preg_match('/^[a-zA-Z0-9_]+$/', $name)) return '用户名仅支持字母、数字和下划线';
     return '';
 }
@@ -22,9 +22,15 @@ function validate_password(string $pass) {
 }
 
 // 已登录就直接回主页
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_SESSION['user_id'])) {
+if (isset($_SESSION['user_id'])) {
     header('Location: index.php');
     exit;
+}
+
+// 注册成功提示：register.php 跳转会带 registered=1
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['registered']) && $_GET['registered'] == '1') {
+    $serverMsg = '注册成功，请登录';
+    $serverMsgColor = 'green';
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -101,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div id="errInfo2" class="err"></div>
             <!-- 错误信息显示 -->
             <?php if ($serverMsg): ?>
-                <div class="error-message">
+                <div class="error-message" style="color:<?php echo htmlspecialchars($serverMsgColor, ENT_QUOTES, 'UTF-8'); ?>">
                     <?php echo htmlspecialchars($serverMsg, ENT_QUOTES, 'UTF-8'); ?>
                 </div>
             <?php endif; ?>
