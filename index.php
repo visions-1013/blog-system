@@ -165,6 +165,150 @@
 				margin-bottom: 6px;
 				text-align: center;
 			}
+			
+			/* 点赞按钮样式 */
+			.like-button {
+				display: inline-block;
+				margin: 8px auto 4px;
+				padding: 6px 15px;
+				background-color: #f8f9fa;
+				border: 1px solid #e2e8f0;
+				border-radius: 20px;
+				color: #4a5568;
+				font-size: 13px;
+				cursor: pointer;
+				transition: all 0.3s ease;
+				user-select: none;
+			}
+			
+			/* 点赞按钮内部图标和文本布局 */
+			.like-button span {
+				display: inline-block;
+				vertical-align: middle;
+			}
+			
+			/* 点赞图标样式 */
+			.like-icon {
+				display: inline-block;
+				width: 16px;
+				height: 16px;
+				margin-right: 6px;
+				background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234a5568'%3E%3Cpath d='M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z'/%3E%3C/svg%3E");
+				background-repeat: no-repeat;
+				background-position: center;
+				background-size: contain;
+				transition: transform 0.2s ease;
+			}
+			
+			/* 点赞按钮悬停效果 */
+			.like-button:hover {
+				background-color: #f1f5f9;
+				border-color: #cbd5e0;
+				color: #2d3748;
+			}
+			
+			/* 点赞按钮点击效果 */
+			.like-button:active {
+				transform: scale(0.95);
+			}
+			
+			/* 点赞状态 - 已点赞样式 */
+			.like-button.liked {
+				background-color: #fff5f5;
+				border-color: #fed7d7;
+				color: #e53e3e;
+			}
+			
+			/* 点赞状态 - 已点赞图标样式 */
+			.like-button.liked .like-icon {
+				background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23e53e3e'%3E%3Cpath d='M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z'/%3E%3C/svg%3E");
+				transform: scale(1.1);
+			}
+			
+			/* 点赞动画效果 */
+			@keyframes likeAnimation {
+				0% { transform: scale(1); }
+				25% { transform: scale(1.2); }
+				50% { transform: scale(0.9); }
+				75% { transform: scale(1.1); }
+				100% { transform: scale(1); }
+			}
+			
+			.like-button.animating .like-icon {
+				animation: likeAnimation 0.4s ease;
+			}
+			
+			/* 点赞计数样式 */
+			.like-count {
+				font-weight: 600;
+				margin-left: 2px;
+			}
+			
+			/* 自定义文件上传按钮样式 */
+			.file-upload-container {
+				display: inline-block;
+				position: relative;
+				vertical-align: middle;
+			}
+			
+			.file-upload-button {
+				display: inline-block;
+				padding: 6px 12px;
+				background-color: #e6f7ff;
+				color: #2d3748;
+				border: 1px solid #bae7ff;
+				border-radius: 4px;
+				font-size: 13px;
+				cursor: pointer;
+				transition: all 0.2s ease;
+			}
+			
+			.file-upload-button:hover {
+				background-color: #d6f1ff;
+				border-color: #91d5ff;
+			}
+			
+			.file-upload-button:active {
+				background-color: #bae7ff;
+				transform: translateY(1px);
+			}
+			
+			.file-upload-container input[type="file"] {
+				position: absolute;
+				left: 0;
+				top: 0;
+				width: 100%;
+				height: 100%;
+				opacity: 0;
+				cursor: pointer;
+			}
+			
+			.file-name-display {
+				display: inline-block;
+				margin-left: 8px;
+				padding: 4px 8px;
+				font-size: 12px;
+				color: #718096;
+				background-color: #f8f9fa;
+				border-radius: 3px;
+				max-width: 150px;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				vertical-align: middle;
+			}
+			
+			.file-upload-icon {
+				display: inline-block;
+				width: 14px;
+				height: 14px;
+				margin-right: 4px;
+				background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234a5568'%3E%3Cpath d='M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z'/%3E%3C/svg%3E");
+				background-repeat: no-repeat;
+				background-position: center;
+				background-size: contain;
+				vertical-align: text-bottom;
+			}
 		</style>
 	</head>
 	<body>
@@ -178,10 +322,7 @@
 					</form>
 				</div>
 				<div class="head-right">
-					<br/>
-					<br/>
-					<br/>
-					登录选项（后端）&nbsp;&nbsp;&nbsp;&nbsp;注册选项(后端)
+
 				</div>
 			</div>
 			<div class="nav">
@@ -196,20 +337,21 @@
 				</div>
 				<div class="main-part">
 				    <div class="blog-area">
-						<form method="post" action="">
+						<form method="post" action="" enctype="multipart/form-data">
 							<textarea placeholder="分享您的新鲜事···" rows="5" cols="30"
 							name="contentInput" id="contentInput"></textarea>
 							<br/>
-							<input type="file" name="weibo-picture" id="weibo-picture"
-							accept="image/jpeg,image/png,image/gif"/>
-							话题:
-							<select name="region" style="padding: 6px 10px; border-radius: 4px; border: 1px solid #e8f4f8;">
-								<option value="daily">日常生活</option>
-								<option value="travel">旅行</option>
-								<option value="food">美食</option>
-								<option value="learning">学习</option>
-								<option value="jobs">工作</option>
-							</select>&nbsp;
+							<!-- 优化后的文件上传组件 -->
+							<div class="file-upload-container">
+								<label for="weibo-picture" class="file-upload-button">
+									<span class="file-upload-icon"></span>
+									选择图片
+								</label>
+								<input type="file" name="weibo-picture" id="weibo-picture"
+								accept="image/jpeg,image/png,image/gif" style="display:none;" onchange="updateFileName(this)"/>
+							</div>
+							<span id="file-name" class="file-name-display">未选择文件</span>
+							&nbsp;
 							<input type="submit" name="content-submit" id="content-submit" value="一键分享">
 						</form>
 					</div>
@@ -220,6 +362,11 @@
 							<div class="blog-picture">
 								<img src="D:\大学资料\图片集\图片1.jpg" alt="微博配图">
 							</div>
+							<button class="like-button" onclick="toggleLike(this)">
+								<span class="like-icon"></span>
+								<span>点赞</span>
+								<span class="like-count">0</span>
+							</button>
 						</div>
 						<div class="blog">
 							<div class="usrname">三生有幸（华裔润人）</div>
@@ -227,6 +374,11 @@
 							<div class="blog-picture">
 								<img src="D:\大学资料\图片集\图片1.jpg" alt="微博配图">
 							</div>
+							<button class="like-button" onclick="toggleLike(this)">
+								<span class="like-icon"></span>
+								<span>点赞</span>
+								<span class="like-count">0</span>
+							</button>
 						</div>
 						<div class="blog">
 							<div class="usrname">楠楠</div>
@@ -234,6 +386,11 @@
 							<div class="blog-picture">
 								<img src="D:\大学资料\图片集\图片1.jpg" alt="微博配图">
 							</div>
+							<button class="like-button" onclick="toggleLike(this)">
+								<span class="like-icon"></span>
+								<span>点赞</span>
+								<span class="like-count">0</span>
+							</button>
 						</div>
 						<div class="blog">
 							<div class="usrname">杭州发布</div>
@@ -241,6 +398,11 @@
 							<div class="blog-picture">
 								<img src="D:\大学资料\图片集\图片1.jpg" alt="微博配图">
 							</div>
+							<button class="like-button" onclick="toggleLike(this)">
+								<span class="like-icon"></span>
+								<span>点赞</span>
+								<span class="like-count">0</span>
+							</button>
 						</div>
 						<div class="blog">
 							<div class="username">用户123456</div>
@@ -248,6 +410,11 @@
 							<div class="blog-picture">
 								<img src="D:\大学资料\图片集\图片1.jpg" alt="微博配图">
 							</div>
+							<button class="like-button" onclick="toggleLike(this)">
+								<span class="like-icon"></span>
+								<span>点赞</span>
+								<span class="like-count">0</span>
+							</button>
 						</div>
 						<div class="blog">
 							<div class="username">银鑫城官方</div>
@@ -255,11 +422,16 @@
 							<div class="blog-picture">
 								<img src="D:\大学资料\图片集\图片1.jpg" alt="微博配图">
 							</div>
+							<button class="like-button" onclick="toggleLike(this)">
+								<span class="like-icon"></span>
+								<span>点赞</span>
+								<span class="like-count">0</span>
+							</button>
 						</div>
 					</div>
 				</div>
 				<div class="right-sider">
-					<p>热点新闻(后端填入,应当是链接吧，可以删除)</p>
+					<p>热点新闻</p>
 					<div class="hot-new">1.震惊！我们杭州又赢了！！</div>
 					<div class="hot-new">2.小猪佩奇居然是我们杭州人？就在刚刚·······</div>
 					<div class="hot-new">3.一杭州小伙研制出了利器，重大突破！</div>
@@ -273,5 +445,82 @@
 			    开发者团队：章航渝、章晨阳、周凯涵<br/>
 			    本页面为自制微博前端演示，后端功能待后续开发
 		</div>
+		
+		<script>
+			// 点赞功能实现
+			function toggleLike(button) {
+				const likeCountSpan = button.querySelector('.like-count');
+				let likeCount = parseInt(likeCountSpan.textContent);
+				
+				// 添加动画类
+				button.classList.add('animating');
+				
+				// 切换点赞状态
+				if (button.classList.contains('liked')) {
+					// 取消点赞
+					button.classList.remove('liked');
+					likeCount--;
+					button.querySelector('span:nth-child(2)').textContent = '点赞';
+				} else {
+					// 点赞
+					button.classList.add('liked');
+					likeCount++;
+					button.querySelector('span:nth-child(2)').textContent = '已赞';
+				}
+				
+				// 更新点赞数
+				likeCountSpan.textContent = likeCount;
+				
+				// 移除动画类，以便下次点击可以重新添加
+				setTimeout(() => {
+					button.classList.remove('animating');
+				}, 400);
+			}
+			
+			// 页面加载时为每个点赞按钮添加随机初始点赞数
+			document.addEventListener('DOMContentLoaded', function() {
+				const likeButtons = document.querySelectorAll('.like-button');
+				likeButtons.forEach(button => {
+					// 生成1-100之间的随机点赞数
+					const randomLikes = Math.floor(Math.random() * 100) + 1;
+					const likeCountSpan = button.querySelector('.like-count');
+					likeCountSpan.textContent = randomLikes;
+					
+					// 随机设置一些按钮为已点赞状态
+					if (Math.random() > 0.7) {
+						button.classList.add('liked');
+						button.querySelector('span:nth-child(2)').textContent = '已赞';
+					}
+				});
+			});
+			
+			// 更新文件名显示
+			function updateFileName(input) {
+				const fileNameDisplay = document.getElementById('file-name');
+				if (input.files.length > 0) {
+					// 获取文件名
+					let fileName = input.files[0].name;
+					// 如果文件名太长，截断显示
+					if (fileName.length > 20) {
+						fileName = fileName.substring(0, 17) + '...';
+					}
+					fileNameDisplay.textContent = fileName;
+					fileNameDisplay.title = input.files[0].name; // 鼠标悬停显示完整文件名
+				} else {
+					fileNameDisplay.textContent = '未选择文件';
+					fileNameDisplay.title = '';
+				}
+			}
+			
+			// 为自定义文件上传按钮添加点击事件
+			document.addEventListener('DOMContentLoaded', function() {
+				const fileUploadButton = document.querySelector('.file-upload-button');
+				const fileInput = document.getElementById('weibo-picture');
+				
+				fileUploadButton.addEventListener('click', function() {
+					fileInput.click();
+				});
+			});
+		</script>
 	</body>
 </html>
