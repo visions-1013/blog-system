@@ -85,31 +85,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <div class="auth-form login-form">
-        <form action="" method="post">
+        <form action="" method="post" onsubmit="return checkAll()">
             <div class="form-group">
                 <label for="username">用户昵称：</label>
                 <input type="text" id="username" name="username" 
                        placeholder="请输入您的用户名！" 
                        value="<?php echo htmlspecialchars($oldUsername, ENT_QUOTES, 'UTF-8'); ?>">
             </div>
-
+            <div id="errInfo1" class="err"></div>
             <div class="form-group">
                 <label for="password">登录密码：</label>
                 <input type="password" id="password" name="password" 
                        placeholder="请输入6-16位密码，支持字母、数字和特殊字符！">
             </div>
-
+            <div id="errInfo2" class="err"></div>
             <!-- 错误信息显示 -->
             <?php if ($serverMsg): ?>
                 <div class="error-message">
                     <?php echo htmlspecialchars($serverMsg, ENT_QUOTES, 'UTF-8'); ?>
                 </div>
             <?php endif; ?>
-
+            
             <div class="btn-group">
-                <button type="submit" class="btn-primary">现在登录！</button>
-                <button type="reset" class="btn-secondary">重置信息！</button>
+                <button type="submit" id="submit" class="btn-primary">现在登录！</button>
+                <button type="reset" id="reset" class="btn-secondary">重置信息！</button>
             </div>
+            <div id="errInfo" class="err"></div>
         </form>
     </div>
 
@@ -126,10 +127,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		let errInfo2=document.getElementById("errInfo2");
 		let errInfo=document.getElementById("errInfo");
 		username.addEventListener("blur",checkUsername);
-		username.addEventListener("focus",checkUsername);
 		username.addEventListener("input",checkUsername);
 		password.addEventListener("blur",checkPassword);
-		password.addEventListener("focus",checkPassword);
 		password.addEventListener("input",checkPassword);
 		resetBtn.addEventListener("click",resetAll);
 		function checkUsername(){
@@ -180,5 +179,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 				return true;
 			}	
 		}
+        function resetAll(){
+            username.value="";
+            password.value="";
+            errInfo1.textContent="";
+            errInfo2.textContent="";
+            errInfo.textContent="";
+        }
 		</script>
 </html>
