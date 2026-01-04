@@ -76,25 +76,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	<head>
 		<meta charset="utf-8">
 		<title>XX客户端--登录界面</title>
+		<link rel="stylesheet" href="style.css">
 	</head>
 	<body>
-		<h3>请您输入您的用户信息!</h3>
-		<form action="" method="post" onsubmit="return checkAll()">
-			<p><b>用户昵称:</b>
-                <!-- 失败后保留用户刚输入的 username -->
-                <input type="text" name="username" id="username" placeholder="请输入您的用户名！" value="<?php echo htmlspecialchars($oldUsername, ENT_QUOTES, 'UTF-8'); ?>"/>
-            </p>
-			<p id="errInfo1" style="color:darkred">&nbsp&nbsp</p>
-			<p><b>登录密码:</b><input type="password" name="password" id="password" placeholder="请输入6-16位密码，支持字母、数字和特殊字符！"/></p>
-			<p id="errInfo2" style="color:darkred">&nbsp&nbsp</p>
-			<p><input type="submit" name="submit" id="submit" value="现在登录!" />
-			<input type="reset" name="reset" id="reset" value="重置信息!"></p>
-            <p id="errInfo" style="color:darkred">
-                <!--显示错误信息 -->
-                <?php echo $serverMsg !== '' ? htmlspecialchars($serverMsg, ENT_QUOTES, 'UTF-8') : '&nbsp&nbsp'; ?>
-            </p>
-			</form>
-	</body>
+    <div class="auth-title">
+        <h1>欢迎回到XX微博</h1>
+        <p>输入您的账号和密码，开启精彩社交</p>
+    </div>
+
+    <div class="auth-form login-form">
+        <form action="" method="post">
+            <div class="form-group">
+                <label for="username">用户昵称：</label>
+                <input type="text" id="username" name="username" 
+                       placeholder="请输入您的用户名！" 
+                       value="<?php echo htmlspecialchars($oldUsername, ENT_QUOTES, 'UTF-8'); ?>">
+            </div>
+
+            <div class="form-group">
+                <label for="password">登录密码：</label>
+                <input type="password" id="password" name="password" 
+                       placeholder="请输入6-16位密码，支持字母、数字和特殊字符！">
+            </div>
+
+            <!-- 错误信息显示 -->
+            <?php if ($serverMsg): ?>
+                <div class="error-message">
+                    <?php echo htmlspecialchars($serverMsg, ENT_QUOTES, 'UTF-8'); ?>
+                </div>
+            <?php endif; ?>
+
+            <div class="btn-group">
+                <button type="submit" class="btn-primary">现在登录！</button>
+                <button type="reset" class="btn-secondary">重置信息！</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="auth-footer">
+        <p>© 2026 XX微博 版权所有 | 开发者团队：219</p>
+        <p>本页面为自制微博前端演示，后端功能待后续开发</p>
+    </div>
+</body>
 	<script>
 		let username=document.getElementById("username");
 		let password=document.getElementById("password");

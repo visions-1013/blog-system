@@ -1,344 +1,277 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <title>XX微博系统主页</title>
-    <style type="text/css">
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        /* 全局body样式：避免页面溢出、统一字体 */
-        body {
-            background-color: #f5f5f5;
-            font-family: "微软雅黑", sans-serif;
-            color: #333; /* 统一全局文字颜色，提升可读性 */
-        }
-        /* 主容器：限定宽度+居中+阴影+背景白（更贴近实际产品） */
-        .container {
-            width: 1200px;
-            margin: 0 auto;
-            background-color: #fff;
-            box-shadow: 0 0 8px rgba(0,0,0,0.1); /* 增加轻微阴影提升质感 */
-            min-height: 100vh; /* 保证容器至少占满视口高度 */
-            display: flex;
-            flex-direction: column; /* 纵向排列：头部-主体-底部 */
-        }
-        /* 头部：独立分层（优化登录/注册+搜索框布局） */
-        .header {
-            background-color: aquamarine;
-            padding: 15px 20px;
-            height: 80px; /* 固定头部高度，符合常规导航栏尺寸 */
-            display: flex; /* 横向排列所有元素 */
-            align-items: center; /* 垂直居中对齐 */
-            gap: 20px; /* 统一元素间距，替代margin更整洁 */
-            justify-content: space-between; /* 欢迎语左对齐，登录/注册+搜索右对齐 */
-        }
-        /* 头部左侧：欢迎语 */
-        .header .welcome-text {
-            font-size: 18px;
-            font-weight: bold;
-            color: #2c7c7c;
-        }
-        /* 头部右侧：登录注册+搜索 容器（避免元素混乱） */
-        .header .header-right {
-            display: flex;
-            align-items: center;
-            gap: 16px; /* 登录/注册与搜索框之间的间距 */
-        }
-        /* 登录/注册链接样式优化 */
-        .header .auth-link {
-            color: #2c7c7c;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            padding: 6px 10px;
-            border-radius: 4px;
-            transition: all 0.2s;
-        }
-        .header .auth-link:hover {
-            color: #1f6363;
-            background-color: rgba(44, 124, 124, 0.1); /* 悬浮浅背景，提升交互体验 */
-            text-decoration: none; /* 保持无下划线，更简洁 */
-        }
-        /* 头部搜索框样式（保留原有，无需修改） */
-        .header input {
-            padding: 6px 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px 0 0 4px;
-            outline: none;
-            font-size: 14px;
-        }
-        .header button {
-            padding: 6px 12px;
-            border: 1px solid #2c7c7c;
-            background-color: #2c7c7c;
-            color: #fff;
-            border-radius: 0 4px 4px 0;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .header button:hover {
-            background-color: #1f6363;
-        }
-        /* 主体区域：Flex横向划分（左-中-右），占满剩余高度 */
-        .main {
-            display: flex;
-            flex: 1;
-            padding: 20px;
-            gap: 20px;
-        }
-        /* 左侧边栏：样式保留原有 */
-        .left-sidebar {
-            flex: 2;
-            background-color: #f0f8fb;
-            border-radius: 4px;
-            padding: 20px 15px;
-        }
-        .left-sidebar p {
-            margin-bottom: 12px;
-            font-size: 15px;
-        }
-        .left-sidebar a {
-            color: #2c7c7c;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-        .left-sidebar a:hover {
-            color: #1f6363;
-            text-decoration: underline;
-        }
-        /* 中间主体：核心优化帖子发布表单 + 话题选择 */
-        .main-content {
-            flex: 6;
-            background-color: #fefefe;
-            border-radius: 4px;
-            padding: 25px 20px;
-            border: 1px solid #eee;
-        }
-        /* 帖子发布表单：整体样式优化 */
-        .publish-form {
-            margin-bottom: 30px; /* 与下方分类标题拉开间距，替代多个<br> */
-            padding: 20px;
-            background-color: #f9fcfe; /* 浅背景区分表单区域 */
-            border-radius: 4px;
-            border: 1px solid #e8f4f8;
-        }
-        /* 文本输入框优化 */
-        .publish-form #blog {
-            width: 100%; /* 铺满表单宽度，替代固定cols，适配布局 */
-            padding: 12px 15px;
-            border: 1px solid #eee;
-            border-radius: 4px;
-            outline: none;
-            font-family: "微软雅黑", sans-serif;
-            font-size: 14px;
-            resize: vertical; /* 仅允许垂直拉伸，保持布局稳定 */
-            margin-bottom: 12px; /* 与文件上传控件间距 */
-            min-height: 100px; /* 增大默认高度，更易输入 */
-        }
-        /* 文本框聚焦样式 */
-        .publish-form #blog:focus {
-            border-color: #2c7c7c;
-            box-shadow: 0 0 3px rgba(44, 124, 124, 0.2);
-        }
-        /* 图片上传控件优化 */
-        .publish-form #upload_img {
-            padding: 8px 0;
-            margin-bottom: 12px; /* 与话题选择框间距 */
-            color: #666;
-            font-size: 14px;
-            cursor: pointer;
-            display: block; /* 独占一行，避免布局错乱 */
-        }
-        /* 话题选择功能：核心优化样式 */
-        .publish-form .topic-select-wrapper {
-            margin-bottom: 12px; /* 与提交按钮间距 */
-            display: flex;
-            align-items: center; /* 文字与下拉框垂直居中对齐 */
-            gap: 10px; /* 文字与下拉框间距 */
-        }
-        /* 话题提示文字样式 */
-        .publish-form .topic-label {
-            font-size: 14px;
-            color: #666;
-            white-space: nowrap; /* 文字不换行 */
-        }
-        /* 下拉框样式优化 */
-        .publish-form #select {
-            flex: 0 0 auto; /* 不拉伸，保持合适宽度 */
-            min-width: 120px; /* 最小宽度，避免选项被挤压 */
-            padding: 6px 10px; /* 内边距，提升交互体验 */
-            border: 1px solid #eee; /* 统一边框样式，贴合表单风格 */
-            border-radius: 4px; /* 圆角，与其他表单元素一致 */
-            outline: none; /* 去掉默认聚焦轮廓 */
-            font-family: "微软雅黑", sans-serif; /* 统一字体 */
-            font-size: 14px; /* 统一字号 */
-            color: #333; /* 文字颜色 */
-            background-color: #fff; /* 白色背景，更清爽 */
-            cursor: pointer; /* 鼠标悬浮手型 */
-            /* 移除默认下拉框样式（兼容大部分浏览器） */
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            /* 自定义下拉箭头（可选，更美观） */
-            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path fill='%23666' d='M0 0l5 6 5-6z'/></svg>");
-            background-repeat: no-repeat;
-            background-position: right 10px center;
-            background-size: 10px;
-            padding-right: 30px; /* 给自定义箭头预留空间 */
-        }
-        /* 下拉框聚焦样式 */
-        .publish-form #select:focus {
-            border-color: #2c7c7c; /* 聚焦时边框变主色调，与文本框一致 */
-            box-shadow: 0 0 3px rgba(44, 124, 124, 0.2); /* 轻微阴影，提升质感 */
-        }
-        /* 下拉框选项样式 */
-        .publish-form #select option {
-            padding: 6px 10px; /* 选项内边距，提升可读性 */
-            font-size: 14px;
-            color: #333;
-        }
-        /* 提交按钮优化 */
-        .publish-form #blog_submit {
-            padding: 8px 24px;
-            border: 1px solid #2c7c7c;
-            background-color: #2c7c7c;
-            color: #fff;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: background-color 0.2s;
-            border: none;
-        }
-        .publish-form #blog_submit:hover {
-            background-color: #1f6363;
-        }
-        /* 中间主体分类标题：样式保留原有 */
-        .main-content p {
-            font-size: 17px;
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 30px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #eee;
-        }
-        /* 右侧边栏：样式保留原有 */
-        .right-sidebar {
-            flex: 2;
-            background-color: #f0f8fb;
-            border-radius: 4px;
-            padding: 10px;
-        }
-        .right-sidebar p {
-            margin-bottom: 12px;
-            font-size: 15px;
-        }
-        /* 底部：样式保留原有 */
-        .footer {
-            background-color: #f8f8f8;
-            text-align: center;
-            padding: 20px;
-            color: #666;
-            font-size: 14px;
-            border-top: 1px solid #eee;
-        }
-        .footer p {
-            margin-bottom: 6px;
-            line-height: 1.5;
-        }
-    </style>
-</head>
-<body>
-    <!-- 整体容器：包含头部、主体、底部 -->
-    <div class="container">
-        <!-- 头部：优化登录/注册布局 -->
-        <div class="header">
-            <!-- 欢迎语：单独类名，便于样式控制 -->
-            <p class="welcome-text">XX微博主页，欢迎您的到来!</p>
-            
-            <!-- 头部右侧：登录/注册 + 搜索 统一容器 -->
-            <div class="header-right">
-                <!-- 登录/注册链接：添加类名，优化样式 -->
-                <a href="login.php" target="_self" class="auth-link">登录</a>
-                <a href="register.php" target="_self" class="auth-link">注册</a>
-                
-                <!-- 搜索表单：保留原有功能 -->
-                <form method="post" action="">
-                    <input type="text" name="search" id="search" placeholder="请输入您想搜索的微博!"/>
-                    <button onclick="return checkInput()">点击搜索</button>
-                </form>
-            </div>
-        </div>
-
-        <!-- 主体：左中右三列布局 -->
-        <div class="main">
-            <!-- 左侧边栏：保留原有内容 -->
-            <div class="left-sidebar">
-                <p><a href="profile.php" target="_self">个人中心</a></p>
-                <p><a href="#star">·明星</a></p>
-                <p><a href="#coding">·学习天地</a></p>
-                <p><a href="#society">·社会</a></p>
-                <p><a href="#hotNews">·热搜</a></p>
-            </div>
-            
-            <!-- 中间核心区域：优化帖子发布表单 + 话题选择 -->
-            <div class="main-content">
-                <!-- 帖子发布表单：添加类名，优化布局 -->
-                <form action="" method="post" enctype="multipart/form-data" class="publish-form">
-                    <!-- 文本框：移除cols，用CSS控制宽度 -->
-                    <textarea id="blog" name="blog" rows="5" placeholder="有什么新鲜事想分享给大家?"></textarea>
-                    <!-- 图片上传：保留原有功能 -->
-                    <input type="file" name="upload_img" id="upload_img" accept="image/*">
-                    <!-- 话题选择：新增包裹容器，优化布局 -->
-                    <div class="topic-select-wrapper">
-                        <span class="topic-label">选择话题：</span>
-                        <select name="select" id="select">
-                            <option value="1">学习</option>
-                            <option value="2">娱乐</option>
-                            <option value="3">热点</option>
-                            <option value="4">生活</option>
-                            <option value="5">游戏</option>
-                        </select>
-                    </div>
-                    <!-- 提交按钮：保留原有功能 -->
-                    <input type="submit" name="blog_submit" id="blog_submit" value="点击分享"/>
-                </form>
-
-                <!-- 分类标题：移除多个<br>，用CSS margin控制间距 -->
-                <p id="hotNews">热搜</p><!--待填充内容     -->
-                <p id="coding">学习天地</p><!--待填充内容     -->
-                <p id="star">明星趣闻</p><!--待填充内容     -->
-                <p id="society">社会热点</p><!--待填充内容     -->
-            </div>
-
-            <!-- 右侧边栏：保留原有内容 -->
-            <div class="right-sidebar">
-                <p>热搜1，待填充(带有帖子标题的链接)</p>
-                <p>热搜2，待填充(带有帖子标题的链接)</p>
-                <p>热搜3，待填充(带有帖子标题的链接)</p>
-            </div>
-        </div>
-
-        <!-- 底部：保留原有内容 -->
-        <div class="footer">
-            <p>&copy;XX微博  2026 保留所有权力</p>
-            <p>本网站仅用于娱乐，学习使用</p>
-        </div>
-    </div>
-</body>
-<script>
-	function checkInput(){
-		var input=document.getElementById("search");
-		var text=input.value.trim();
-		if (text.lengh==0) return false;
-		else return true;
-	}
-	
-	
-	
-	
-</script>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>XX微博主页面</title>
+		<style>
+			*{
+				margin:0;
+				padding:0;
+				box-sizing:border-box;
+			} 
+			.container{
+				width:1400px;
+				margin:0 auto;
+				background-color:#fdfdfd; /* 奶油白底色 */
+				box-shadow: 0 0 12px rgba(0,0,0,0.02); /* 更淡阴影 */
+				border-radius: 8px;
+				overflow: hidden;
+			}
+			.header{
+				padding:15px 20px;
+				color:#4a5568; /* 浅灰蓝文字 */
+				background-color: #f0f8fb; /* 浅天蓝背景 */
+				display: flex;
+				border-bottom: 1px solid #e8f4f8; /* 浅蓝分割线 */
+			}
+			.head-left{
+				flex:3;
+				margin-right:10px;
+				background-color: #ffffff;
+				padding: 8px 12px;
+				border-radius: 6px;
+			}
+			.head-right{
+				flex:2;
+				text-align: right;
+				background-color: #f0f8fb;
+				padding: 8px 12px;
+				border-radius: 6px;
+			}
+			.nav{
+				padding:10px 20px;
+				background-color: #ffffff;
+				color:lightblue;
+				border-bottom: 1px solid #e8f4f8;
+				text-align: center;
+			}
+			.blog-area{
+				text-align:center;
+			}
+			.blog-display{
+				
+			}
+			.blog{
+				text-align: center;
+				margin: 10px 0;
+				padding: 8px 0;
+				border-bottom: 1px solid #f5fafe; /* 浅蓝灰分割线 */
+			}
+			.footer{
+			    text-align:center;
+				padding:20px;
+				background-color: #f0f8fb; /* 浅天蓝页脚 */
+				color: #718096; /* 浅灰文字 */
+				border-top: 1px solid #e8f4f8;
+			}
+			.body{
+				display:flex;
+				padding:15px;
+				background-color: #f5fafe; /* 浅青蓝背景 */
+			}
+			.left-sider{
+				flex:1;
+				margin-right:10px;
+				background-color: #ffffff;
+				padding: 10px;
+				border-radius: 6px;
+				box-shadow: 0 1px 2px rgba(0,0,0,0.01);
+			}
+			.main-part{
+				flex:3;
+				margin-right:10px;
+				background-color: #ffffff;
+				padding: 15px;
+				border-radius: 6px;
+				box-shadow: 0 1px 2px rgba(0,0,0,0.01);
+			}
+			.right-sider{
+				flex:1;
+				background-color: #ffffff;
+				padding: 10px;
+				border-radius: 6px;
+				box-shadow: 0 1px 2px rgba(0,0,0,0.01);
+			}
+			.hot-new{
+				align-content: center;
+				margin: 8px 0;
+				padding: 4px 0;
+				border-bottom: 1px solid #f5fafe;
+			}
+			/* 按钮清新浅色系调整 */
+			#search-submit, #content-submit{
+				background-color: #66d9e8; /* 薄荷浅绿按钮 */
+				color: #2d3748; /* 深灰文字更清晰 */
+				border: none;
+				padding: 6px 12px;
+				border-radius: 4px;
+				cursor: pointer;
+				transition: background-color 0.2s;
+			}
+			#search-submit:hover, #content-submit:hover{
+				background-color: #3bc9db; /* hover加深一点薄荷绿 */
+			}
+			textarea, input[type="text"], input[type="file"]{
+				border: 1px solid #e8f4f8; /* 浅蓝边框 */
+				border-radius: 4px;
+				padding: 6px 8px;
+				background-color: #fefefe;
+			}
+			textarea:focus, input[type="text"]:focus{
+				outline: none;
+				border-color: #66d9e8; /* 聚焦薄荷绿边框 */
+				box-shadow: 0 0 0 2px rgba(102, 217, 232, 0.08);
+			}
+			select{
+				border: 1px solid #e8f4f8 !important;
+				color: #4a5568;
+				background-color: #fefefe;
+			}
+			/* 用户名和内容文字配色调整 */
+			.username{
+				color: #2d3748;
+				font-weight: 600;
+				font-size: 15px;
+				margin-bottom: 6px;
+				text-align: center;
+			}
+			.blog-content{
+				color: #4a5568;
+				font-size: 14px;
+				line-height: 1.6;
+				padding: 0 20px;
+				text-align: center;
+				margin-bottom: 4px;
+			}
+			.blog-picture {
+			  margin: 8px 0; /* 与上下内容（博客内容/分割线）保持合理间距，避免拥挤 */
+			  text-align: center; /* 让图片水平居中，与博客整体风格统一 */
+			  padding: 0 20px; /* 左右留白，和 blog-content 保持一致，视觉协调 */
+			}
+			
+			/* 优化图片样式：防止变形、添加美化效果 */
+			.blog-picture img {
+			  /* 1. 控制图片尺寸：避免过大撑破容器，同时保证清晰度 */
+			  max-width: 300px; 
+			  max-height: 150px; /* 限制最大高度，避免图片过高占用过多空间 */
+			  width: auto; /* 宽度随高度自适应，防止图片拉伸变形 */
+			  height: auto; /* 高度随宽度自适应，保持 */
+			  }
+			/* 兼容原有usrname类名 */
+			.usrname{
+				color: #2d3748;
+				font-weight: 600;
+				font-size: 15px;
+				margin-bottom: 6px;
+				text-align: center;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<div class="header">
+				<div class="head-left">
+					<h3>欢迎您访问XX微博!!在此记录生活，畅抒己见!</h3></br>
+					<form method="post" action="">
+						<input type="text" name="search" id="search" placeholder="搜索您想看的blog..."/>
+						<input type="submit" name="search-submit" id="search-submit" value="点击搜索"/>
+					</form>
+				</div>
+				<div class="head-right">
+					<br/>
+					<br/>
+					<br/>
+					登录选项（后端）&nbsp;&nbsp;&nbsp;&nbsp;注册选项(后端)
+				</div>
+			</div>
+			<div class="nav">
+				今日新闻&nbsp;&nbsp;&nbsp;&nbsp;明星趣闻&nbsp;&nbsp;&nbsp;&nbsp;学习妙招
+			</div>
+			<div class="body">
+				<div class="left-sider">
+					<p>个人中心</p>
+					<p>特别关注</p>
+					<p>您的好友</p>
+					<p>关于我们(开发者团队)</p>
+				</div>
+				<div class="main-part">
+				    <div class="blog-area">
+						<form method="post" action="">
+							<textarea placeholder="分享您的新鲜事···" rows="5" cols="30"
+							name="contentInput" id="contentInput"></textarea>
+							<br/>
+							<input type="file" name="weibo-picture" id="weibo-picture"
+							accept="image/jpeg,image/png,image/gif"/>
+							话题:
+							<select name="region" style="padding: 6px 10px; border-radius: 4px; border: 1px solid #e8f4f8;">
+								<option value="daily">日常生活</option>
+								<option value="travel">旅行</option>
+								<option value="food">美食</option>
+								<option value="learning">学习</option>
+								<option value="jobs">工作</option>
+							</select>&nbsp;
+							<input type="submit" name="content-submit" id="content-submit" value="一键分享">
+						</form>
+					</div>
+					<div class="blog-display">
+						<div class="blog">
+							<div class="usrname">章航渝(神人)</div>
+							<div class="blog-content">今天是昨天的明天，也就是明天的昨天.....</div>
+							<div class="blog-picture">
+								<img src="D:\大学资料\图片集\图片1.jpg" alt="微博配图">
+							</div>
+						</div>
+						<div class="blog">
+							<div class="usrname">三生有幸（华裔润人）</div>
+							<div class="blog-content">人生第一次到纽约....真是我的精神故乡啊····</div>
+							<div class="blog-picture">
+								<img src="D:\大学资料\图片集\图片1.jpg" alt="微博配图">
+							</div>
+						</div>
+						<div class="blog">
+							<div class="usrname">楠楠</div>
+							<div class="blog-content">今天，我们恋爱啦！请大家祝福我们！</div>
+							<div class="blog-picture">
+								<img src="D:\大学资料\图片集\图片1.jpg" alt="微博配图">
+							</div>
+						</div>
+						<div class="blog">
+							<div class="usrname">杭州发布</div>
+							<div class="blog-content">就在刚刚！官宣NO.1</div>
+							<div class="blog-picture">
+								<img src="D:\大学资料\图片集\图片1.jpg" alt="微博配图">
+							</div>
+						</div>
+						<div class="blog">
+							<div class="username">用户123456</div>
+							<div class="blog-content">这是我的第一条微博，记录一下今天的开心日常～</div>
+							<div class="blog-picture">
+								<img src="D:\大学资料\图片集\图片1.jpg" alt="微博配图">
+							</div>
+						</div>
+						<div class="blog">
+							<div class="username">银鑫城官方</div>
+							<div class="blog-content">今天我们入住XX微博啦！</div>
+							<div class="blog-picture">
+								<img src="D:\大学资料\图片集\图片1.jpg" alt="微博配图">
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="right-sider">
+					<p>热点新闻(后端填入,应当是链接吧，可以删除)</p>
+					<div class="hot-new">1.震惊！我们杭州又赢了！！</div>
+					<div class="hot-new">2.小猪佩奇居然是我们杭州人？就在刚刚·······</div>
+					<div class="hot-new">3.一杭州小伙研制出了利器，重大突破！</div>
+					<div class="hot-new">4.中国5：德国0 好消息传来----</div>
+					<div >
+				</div>
+			</div>
+		</div>
+		<div class="footer">
+			© 2026 XX微博 版权所有 | 隐私政策 | 联系我们<br/>
+			    开发者团队：章航渝、章晨阳、周凯涵<br/>
+			    本页面为自制微博前端演示，后端功能待后续开发
+		</div>
+	</body>
 </html>
