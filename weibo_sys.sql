@@ -1,13 +1,13 @@
-DROP DATABASE IF EXISTS `weibo_sys`;
-CREATE DATABASE `weibo_sys` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE `weibo_sys`;
+DROP DATABASE IF EXISTS `blog`;
+CREATE DATABASE `blog` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `blog`;
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0; 
 
---创建用户表
 
-DROP TABLE IF EXISTS `users`;
+
+DROP TABLE IF EXISTS `users`;--创建用户表
 CREATE TABLE `users` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '用户ID',
   `username` varchar(50) NOT NULL COMMENT '登录用户名',
@@ -19,9 +19,9 @@ CREATE TABLE `users` (
   UNIQUE KEY `username` (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---创建微博内容表
 
-DROP TABLE IF EXISTS `posts`;
+
+DROP TABLE IF EXISTS `posts`;--创建微博内容表
 CREATE TABLE `posts` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '微博ID',
   `user_id` int(11) NOT NULL COMMENT '发布者ID',
@@ -34,9 +34,9 @@ CREATE TABLE `posts` (
   CONSTRAINT `fk_posts_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---创建评论表
 
-DROP TABLE IF EXISTS `comments`;
+
+DROP TABLE IF EXISTS `comments`;--创建评论表
 CREATE TABLE `comments` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '评论ID',
   `post_id` int(11) NOT NULL COMMENT '关联微博ID',
@@ -50,8 +50,8 @@ CREATE TABLE `comments` (
   CONSTRAINT `fk_comments_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---创建点赞记录表 
-DROP TABLE IF EXISTS `likes`;
+
+DROP TABLE IF EXISTS `likes`;--创建点赞记录表 
 CREATE TABLE `likes` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '记录ID',
   `user_id` int(11) NOT NULL COMMENT '点赞用户',
