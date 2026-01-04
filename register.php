@@ -10,7 +10,7 @@ $oldUsername = '';
 function validate_username(string $name) {
     $name = trim($name);
     if ($name === '') return '用户名不能为空';
-    if (mb_strlen($name) < 2 || mb_strlen($name) > 10) return '用户名长度需在2-10位之间';
+    if (mb_strlen($name, 'UTF-8') < 2 || mb_strlen($name, 'UTF-8') > 10) return '用户名长度需在2-10位之间';
     if (!preg_match('/^[a-zA-Z0-9_]+$/', $name)) return '用户名仅支持字母、数字和下划线';
     return '';
 }
@@ -50,7 +50,7 @@ function db_create_user(string $username, string $passwordPlain){
 }
 
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     $username   = isset($_POST['username']) ? trim((string)$_POST['username']) : '';
     $password   = isset($_POST['password']) ? (string)$_POST['password'] : '';
     $password_2 = isset($_POST['password_2']) ? (string)$_POST['password_2'] : '';
@@ -69,11 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $serverMsgColor = 'darkred';
         } else {
             if (db_create_user($username, $password)) {
-                $serverMsg = '注册成功！';
-                $serverMsgColor = 'green';
-                
-                //成功注册后，跳转登录页面
-                header("Location: login.php"); 
+                header("Location: login.php?registered=1");
                 exit;
             } else {
                 $serverMsg = '注册失败';
@@ -226,11 +222,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			errInfo.textContent="无法注册!内容填写有误!";
 			errInfo.style="color:darkred";
 			return false;
-		}else{
-			errInfo.textContent="注册成功!";
-			errInfo.style="color:green";
-			return true;
-		}	
+        }else{
+            errInfo.textContent="";
+            errInfo.style="color:darkred";
+            return true;
+        }
 	}
 	function resetAll(){
 		errInfo.textContent="";
