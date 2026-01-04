@@ -1,6 +1,6 @@
 <?php
 $db_host = 'localhost';     
-$db_name = 'weibo_sys';      
+$db_name = 'blog';
 $db_user = 'root';            
 $db_pass = '';                
 $db_charset = 'utf8mb4';     
