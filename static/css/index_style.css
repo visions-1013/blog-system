@@ -1,0 +1,348 @@
+*{
+				margin:0;
+				padding:0;
+				box-sizing:border-box;
+			} 
+			.container{
+				width:1400px;
+				margin:0 auto;
+				background-color:#fdfdfd; /* 奶油白底色 */
+				box-shadow: 0 0 12px rgba(0,0,0,0.02); /* 更淡阴影 */
+				border-radius: 8px;
+				overflow: hidden;
+			}
+			.header{
+				padding:15px 20px;
+				color:#4a5568; /* 浅灰蓝文字 */
+				background-color: #f0f8fb; /* 浅天蓝背景 */
+				display: flex;
+				border-bottom: 1px solid #e8f4f8; /* 浅蓝分割线 */
+			}
+			.head-left{
+				flex:3;
+				margin-right:10px;
+				background-color: #ffffff;
+				padding: 8px 12px;
+				border-radius: 6px;
+			}
+			.head-right{
+				flex:2;
+				text-align: right;
+				background-color: #f0f8fb;
+				padding: 8px 12px;
+				border-radius: 6px;
+			}
+			.nav{
+				padding:10px 20px;
+				background-color: #ffffff;
+				color:lightblue;
+				border-bottom: 1px solid #e8f4f8;
+				text-align: center;
+			}
+			.blog-area{
+				text-align:center;
+			}
+			.blog-display{
+				
+			}
+			.blog{
+				text-align: left;
+				margin: 10px 0;
+				padding: 8px 0;
+				border-bottom: 1px solid black; /* 黑色分割线 */
+			}
+			.footer{
+			    text-align:center;
+				padding:20px;
+				background-color: #f0f8fb; /* 浅天蓝页脚 */
+				color: #718096; /* 浅灰文字 */
+				border-top: 1px solid #e8f4f8;
+			}
+			.body{
+				display:flex;
+				padding:15px;
+				background-color: #f5fafe; /* 浅青蓝背景 */
+			}
+			.left-sider{
+				flex:1;
+				margin-right:10px;
+				background-color: #ffffff;
+				padding: 10px;
+				border-radius: 6px;
+				box-shadow: 0 1px 2px rgba(0,0,0,0.01);
+			}
+			.main-part{
+				flex:3;
+				margin-right:10px;
+				background-color: #ffffff;
+				padding: 15px;
+				border-radius: 6px;
+				box-shadow: 0 1px 2px rgba(0,0,0,0.01);
+			}
+			.right-sider{
+				flex:1;
+				background-color: #ffffff;
+				padding: 10px;
+				border-radius: 6px;
+				box-shadow: 0 1px 2px rgba(0,0,0,0.01);
+			}
+			.hot-new{
+				align-content: center;
+				margin: 8px 0;
+				padding: 4px 0;
+				border-bottom: 1px solid #f5fafe;
+			}
+			/* 按钮清新浅色系调整 */
+			#search-submit, #content-submit{
+				background-color: #66d9e8; /* 薄荷浅绿按钮 */
+				color: #2d3748; /* 深灰文字更清晰 */
+				border: none;
+				padding: 6px 12px;
+				border-radius: 4px;
+				cursor: pointer;
+				transition: background-color 0.2s;
+			}
+			#search-submit:hover, #content-submit:hover{
+				background-color: #3bc9db; /* hover加深一点薄荷绿 */
+			}
+			textarea, input[type="text"], input[type="file"]{
+				border: 1px solid #e8f4f8; /* 浅蓝边框 */
+				border-radius: 4px;
+				padding: 6px 8px;
+				background-color: #fefefe;
+			}
+			textarea:focus, input[type="text"]:focus{
+				outline: none;
+				border-color: #66d9e8; /* 聚焦薄荷绿边框 */
+				box-shadow: 0 0 0 2px rgba(102, 217, 232, 0.08);
+			}
+			select{
+				border: 1px solid #e8f4f8 !important;
+				color: #4a5568;
+				background-color: #fefefe;
+			}
+			/* 用户名和内容文字配色调整 */
+			.username{
+				color: #2d3748;
+				font-weight: 600;
+				font-size: 15px;
+				margin-bottom: 6px;
+				text-align: left;
+			}
+			.blog-content{
+				color: #4a5568;
+				font-size: 14px;
+				line-height: 1.6;
+				padding: 0 20px;
+				text-align: left;
+				margin-bottom: 4px;
+			}
+			.blog-picture {
+			  margin: 8px 0; /* 与上下内容（博客内容/分割线）保持合理间距，避免拥挤 */
+			  text-align: left; /* 让图片水平居中，与博客整体风格统一 */
+			  padding: 0 20px; /* 左右留白，和 blog-content 保持一致，视觉协调 */
+			}
+			
+			/* 优化图片样式：防止变形、添加美化效果 */
+			.blog-picture img {
+			  /* 1. 控制图片尺寸：避免过大撑破容器，同时保证清晰度 */
+			  max-width: 300px; 
+			  max-height: 150px; /* 限制最大高度，避免图片过高占用过多空间 */
+			  width: auto; /* 宽度随高度自适应，防止图片拉伸变形 */
+			  height: auto; /* 高度随宽度自适应，保持 */
+			  }
+			/* 兼容原有usrname类名 */
+			.usrname{
+				color: #2d3748;
+				font-weight: 600;
+				font-size: 15px;
+				margin-bottom: 6px;
+				text-align: center;
+			}
+			
+			/* 点赞按钮样式 */
+			.like-button {
+				display: inline-block;
+				margin: 8px auto 4px;
+				padding: 6px 15px;
+				background-color: #f8f9fa;
+				border: 1px solid #e2e8f0;
+				border-radius: 20px;
+				color: #4a5568;
+				font-size: 13px;
+				cursor: pointer;
+				transition: all 0.3s ease;
+				user-select: none;
+			}
+			
+			/* 点赞按钮内部图标和文本布局 */
+			.like-button span {
+				display: inline-block;
+				vertical-align: middle;
+			}
+			
+			/* 点赞图标样式 */
+			.like-icon {
+				display: inline-block;
+				width: 16px;
+				height: 16px;
+				margin-right: 6px;
+				background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234a5568'%3E%3Cpath d='M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z'/%3E%3C/svg%3E");
+				background-repeat: no-repeat;
+				background-position: center;
+				background-size: contain;
+				transition: transform 0.2s ease;
+			}
+			
+			/* 点赞按钮悬停效果 */
+			.like-button:hover {
+				background-color: #f1f5f9;
+				border-color: #cbd5e0;
+				color: #2d3748;
+			}
+			
+			/* 点赞按钮点击效果 */
+			.like-button:active {
+				transform: scale(0.95);
+			}
+			
+			/* 点赞状态 - 已点赞样式 */
+			.like-button.liked {
+				background-color: #fff5f5;
+				border-color: #fed7d7;
+				color: #e53e3e;
+			}
+			
+			/* 点赞状态 - 已点赞图标样式 */
+			.like-button.liked .like-icon {
+				background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23e53e3e'%3E%3Cpath d='M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z'/%3E%3C/svg%3E");
+				transform: scale(1.1);
+			}
+			
+			/* 点赞动画效果 */
+			@keyframes likeAnimation {
+				0% { transform: scale(1); }
+				25% { transform: scale(1.2); }
+				50% { transform: scale(0.9); }
+				75% { transform: scale(1.1); }
+				100% { transform: scale(1); }
+			}
+			
+			.like-button.animating .like-icon {
+				animation: likeAnimation 0.4s ease;
+			}
+			
+			/* 点赞计数样式 */
+			.like-count {
+				font-weight: 600;
+				margin-left: 2px;
+			}
+			
+			/* 自定义文件上传按钮样式 */
+			.file-upload-container {
+				display: inline-block;
+				position: relative;
+				vertical-align: middle;
+			}
+			
+			.file-upload-button {
+				display: inline-block;
+				padding: 6px 12px;
+				background-color: #e6f7ff;
+				color: #2d3748;
+				border: 1px solid #bae7ff;
+				border-radius: 4px;
+				font-size: 13px;
+				cursor: pointer;
+				transition: all 0.2s ease;
+			}
+			
+			.file-upload-button:hover {
+				background-color: #d6f1ff;
+				border-color: #91d5ff;
+			}
+			
+			.file-upload-button:active {
+				background-color: #bae7ff;
+				transform: translateY(1px);
+			}
+			
+			.file-upload-container input[type="file"] {
+				position: absolute;
+				left: 0;
+				top: 0;
+				width: 100%;
+				height: 100%;
+				opacity: 0;
+				cursor: pointer;
+			}
+			
+			.file-name-display {
+				display: inline-block;
+				margin-left: 8px;
+				padding: 4px 8px;
+				font-size: 12px;
+				color: #718096;
+				background-color: #f8f9fa;
+				border-radius: 3px;
+				max-width: 150px;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				vertical-align: middle;
+			}
+			
+			.file-upload-icon {
+				display: inline-block;
+				width: 14px;
+				height: 14px;
+				margin-right: 4px;
+				background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234a5568'%3E%3Cpath d='M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z'/%3E%3C/svg%3E");
+				background-repeat: no-repeat;
+				background-position: center;
+				background-size: contain;
+				vertical-align: text-bottom;
+			}
+			
+			/* 评论区域样式 */
+			.comment-section {
+				margin-top: 8px;
+				padding: 8px 20px;
+				color: #4a5568;
+				font-size: 13px;
+				background-color: #f8f9fa;
+				border-radius: 4px;
+			}
+			
+			/* 评论输入区域样式 */
+			.comment-input-area {
+				margin-top: 10px;
+				padding: 10px 20px;
+				background-color: #fafafa;
+				border-radius: 4px;
+				display: none;
+			}
+			
+			.comment-input-area textarea {
+				width: 100%;
+				min-height: 60px;
+				margin-bottom: 8px;
+				font-size: 13px;
+				font-family: inherit;
+				resize: vertical;
+			}
+			
+			.comment-submit-btn {
+				background-color: #66d9e8;
+				color: #2d3748;
+				border: none;
+				padding: 6px 16px;
+				border-radius: 4px;
+				cursor: pointer;
+				transition: background-color 0.2s;
+				font-size: 13px;
+			}
+			
+			.comment-submit-btn:hover {
+				background-color: #3bc9db;
+			}
