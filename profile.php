@@ -27,7 +27,7 @@
 		.head-left{
 			flex:3;
 			margin-right:10px;
-			background-color: #ffffff;
+			background-color: #f0f8fb;
 			padding: 8px 12px;
 			border-radius: 6px;
 		}
@@ -119,9 +119,29 @@
             box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.1);
         }
         input[type="file"]{
-            margin-bottom: 10px;
-            color: #00ffff;
+            display: none;
+        }
+        .file-upload-btn{
+            display: inline-block;
+            background-color: #ffffff;
+            color: #3182ce;
+            border: 1px solid #3182ce;
+            padding: 6px 16px;
+            border-radius: 4px;
+            cursor: pointer;
             font-size: 14px;
+            transition: all 0.2s;
+            margin-bottom: 10px;
+        }
+        .file-upload-btn:hover{
+            background-color: #3182ce;
+            color: white;
+        }
+        .file-name{
+            display: inline-block;
+            margin-left: 10px;
+            color: #718096;
+            font-size: 13px;
         }
         input[type="submit"]{
             background-color: #3182ce;
@@ -132,6 +152,9 @@
             cursor: pointer;
             font-size: 14px;
             transition: background-color 0.2s;
+        }
+        input[type="submit"]:hover{
+            background-color: #2b6cb0;
         }
         input[type="submit"]:hover{
             background-color: #2b6cb0;
@@ -206,7 +229,7 @@
             </div>
             <div class="head-right">
 				<h3>XX微博-个人中心</h3>
-                <br/><br/><br/>退出登录（后端）
+                <br/><br/><br/>退出登录
             </div>
         </div>
 
@@ -228,16 +251,10 @@
                     	<textarea placeholder="分享您的新鲜事···" rows="5" cols="30"
                     	name="contentInput" id="contentInput"></textarea>
                     	<br/>
+                    	<label for="weibo-picture" class="file-upload-btn">选择图片</label>
                     	<input type="file" name="weibo-picture" id="weibo-picture"
-                    	accept="image/jpeg,image/png,image/gif"/>
-                    	话题:
-                    	<select name="region" style="padding: 6px 10px; border-radius: 4px; border: 1px solid #e8f4f8;">
-                    		<option value="daily">日常生活</option>
-                    		<option value="travel">旅行</option>
-                    		<option value="food">美食</option>
-                    		<option value="learning">学习</option>
-                    		<option value="jobs">工作</option>
-                    	</select>&nbsp;
+                    	accept="image/jpeg,image/png,image/gif" onchange="displayFileName(this)"/>
+                    	<span class="file-name" id="file-name"></span>
                     	<input type="submit" name="content-submit" id="content-submit" value="一键分享">
                     </form>
                 </div>
@@ -296,8 +313,15 @@
 
     <div class="footer">
         © 2026 XX微博 版权所有 | 隐私政策 | 联系我们<br>
-            开发者团队：章航渝、章晨阳、周凯涵<br>
+            开发者团队：章航渝、章晨阳、周楷涵<br>
             本页面为自制微博前端演示，后端功能待后续开发
     </div>
+
+    <script>
+        function displayFileName(input) {
+            const fileName = input.files[0] ? input.files[0].name : '';
+            document.getElementById('file-name').textContent = fileName;
+        }
+    </script>
 </body>
 </html>
