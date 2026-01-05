@@ -1,3 +1,34 @@
+<?php
+session_start();
+
+// 处理登出请求
+if (isset($_GET['action']) && $_GET['action'] === 'logout') {
+    // 销毁所有session变量
+    $_SESSION = array();
+    
+    // 删除session cookie
+    if (isset($_COOKIE[session_name()])) {
+        setcookie(session_name(), '', time()-42000, '/');
+    }
+    
+    // 销毁session
+    session_destroy();
+    
+    // 重定向到登录页面
+    header('Location: login.php');
+    exit;
+}
+
+require_once 'config/db_connect.php';
+
+// 检查用户登录状态
+$is_logged_in = isset($_SESSION['user_id']);
+$current_user = null;
+if ($is_logged_in) {
+    $current_user = $_SESSION['user_id'];
+
+}
+?>
 <!DOCTYPE html>
 <html>
 	<head>
@@ -16,7 +47,23 @@
 					</form>
 				</div>
 				<div class="head-right">
-
+					<?php if ($is_logged_in): ?>
+						<!-- 已登录状态 -->
+						<div class="user-info">
+							<span class="username-display"><?php echo htmlspecialchars($_SESSION['username']); ?></span>
+						</div>
+						<nav class="user-nav">
+							<a href="profile.php">个人中心</a>
+							<a href="?action=logout">退出</a>
+						</nav>
+					<?php else: ?>
+						<!-- 未登录状态 -->
+						<nav class="auth-nav">
+							<a href="login.php">登录</a>
+							<span>|</span>
+							<a href="register.php">注册</a>
+						</nav>
+					<?php endif; ?>
 				</div>
 			</div>
 			<div class="nav">
