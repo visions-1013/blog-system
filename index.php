@@ -1,6 +1,13 @@
 <?php
 session_start();
+require_once 'config/db_connect.php';
 
+// 检查用户登录状态
+$is_logged_in = isset($_SESSION['user_id']);
+$current_user = null;
+if ($is_logged_in) {
+    $current_user = $_SESSION['user_id'];
+}
 // 处理登出请求
 if (isset($_GET['action']) && $_GET['action'] === 'logout') {
     // 销毁所有session变量
@@ -19,14 +26,91 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
     exit;
 }
 
-require_once 'config/db_connect.php';
+// 处理微博发布
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['content-submit'])) {
+    // 验证用户登录
+    if (!$is_logged_in) {
+        echo "<script>alert('请先登录！'); window.location.href='login.php';</script>";
+        exit;
+    }
+    
+    // 获取微博内容
+    $content = trim($_POST['contentInput']);
+    
+    // 验证内容
+    if (empty($content)) {
+        echo "<script>alert('微博内容不能为空！'); history.back();</script>";
+        exit;
+    }
+    
+    // 处理图片上传
+    $image_path = null;
+    if (isset($_FILES['weibo-picture']) && $_FILES['weibo-picture']['error'] === UPLOAD_ERR_OK) {
+        $upload_dir = 'static/img/';
+        
+        // 检查目录是否存在，不存在则创建
+        if (!file_exists($upload_dir)) {
+            mkdir($upload_dir, 0777, true);
+        }
+        
+        $file = $_FILES['weibo-picture'];
+        $file_ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        
+        // 验证文件类型
+        $allowed_types = ['jpg', 'jpeg', 'png', 'gif'];
+        if (!in_array($file_ext, $allowed_types)) {
+            echo "<script>alert('只允许上传 JPG、JPEG、PNG、GIF 格式的图片！'); history.back();</script>";
+            exit;
+        }
+        
+        // 验证文件大小（限制为5MB）
+        if ($file['size'] > 5 * 1024 * 1024) {
+            echo "<script>alert('图片大小不能超过5MB！'); history.back();</script>";
+            exit;
+        }
+        
+        // 生成唯一文件名
+        $new_filename = uniqid() . '_' . time() . '.' . $file_ext;
+        $upload_path = $upload_dir . $new_filename;
+        
+        // 移动上传文件
+        if (move_uploaded_file($file['tmp_name'], $upload_path)) {
+            $image_path = $upload_path;
+        } else {
+            echo "<script>alert('图片上传失败，请重试！'); history.back();</script>";
+            exit;
+        }
+    }
+    
+    // 插入数据库
+    try {
+        $sql = "INSERT INTO posts (user_id, content, image, created_at) VALUES (?, ?, ?, NOW())";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$current_user, $content, $image_path]);
+        
+        // 发布成功，直接刷新页面，不显示提示
+        header('Location: index.php');
+        exit;
+    } catch (PDOException $e) {
+        echo "<script>alert('发布失败：" . $e->getMessage() . "'); history.back();</script>";
+        exit;
+    }
+}
 
-// 检查用户登录状态
-$is_logged_in = isset($_SESSION['user_id']);
-$current_user = null;
-if ($is_logged_in) {
-    $current_user = $_SESSION['user_id'];
 
+
+// 查询微博列表
+$posts = [];
+try {
+    $sql = "SELECT p.*, u.username 
+            FROM posts p 
+            LEFT JOIN users u ON p.user_id = u.id 
+            ORDER BY p.created_at DESC";
+    $stmt = $pdo->query($sql);
+    $posts = $stmt->fetchAll();
+} catch (PDOException $e) {
+    // 查询失败，$posts为空数组
+    $posts = [];
 }
 ?>
 <!DOCTYPE html>
@@ -97,190 +181,42 @@ if ($is_logged_in) {
 						</form>
 					</div><br/><br/>
 					<div class="blog-display">
-						<div class="blog">
-							<div class="username">章航渝(神人)</div>
-							<div class="blog-content">今天是昨天的明天，也就是明天的昨天.....</div>
-							<div class="blog-picture">
-								<img src="D:\大学资料\图片集\图片1.jpg" alt="微博配图">
+						<?php if (empty($posts)): ?>
+							<div class="no-posts">
+								<p>暂无微博，快来发布第一条吧！</p>
 							</div>
-							<button class="like-button" onclick="toggleLike(this)">
-								<span class="like-icon"></span>
-								<span>点赞</span>
-								<span class="like-count">0</span>
-							</button>
-							<button class="comment-button" onclick="toggleComment(this)">
-								<span class="comment-icon">💬</span>
-								<span>评论</span>
-							</button>
-							<div class="comment-section" style="display: none;">
-								章航渝的粉丝-甜妹：哈哈哈，这也太棒了吧！！（这里用于插入后端数据库中的代码）
-							</div>
-							<div class="comment-input-area" style="display: none;">
-								<textarea placeholder="写下你的评论..."></textarea>
-								<button class="comment-submit-btn" onclick="submitComment(this)">发表评论</button>
-							</div>
-						</div>
-						<div class="blog">
-							<div class="username">三生有幸（华裔润人）</div>
-							<div class="blog-content">人生第一次到纽约....真是我的精神故乡啊····</div>
-							<div class="blog-picture">
-								<img src="D:\大学资料\图片集\图片1.jpg" alt="微博配图">
-							</div>
-							<button class="like-button" onclick="toggleLike(this)">
-								<span class="like-icon"></span>
-								<span>点赞</span>
-								<span class="like-count">0</span>
-							</button>
-							<button class="comment-button" onclick="toggleComment(this)">
-								<span class="comment-icon">💬</span>
-								<span>评论</span>
-							</button>
-							<div class="comment-section" style="display: none;">
-								哈哈哈，这也太棒了吧！！
-							</div>
-							<div class="comment-input-area" style="display: none;">
-								<textarea placeholder="写下你的评论..."></textarea>
-								<button class="comment-submit-btn" onclick="submitComment(this)">发表评论</button>
-							</div>
-						</div>
-						<div class="blog">
-							<div class="username">小确幸（华裔润人）</div>
-							<div class="blog-content">人生第一次到柬埔寨....真是我的精神故乡啊····</div>
-							<div class="blog-picture">
-								<img src="D:\大学资料\图片集\图片1.jpg" alt="微博配图">
-							</div>
-							<button class="like-button" onclick="toggleLike(this)">
-								<span class="like-icon"></span>
-								<span>点赞</span>
-								<span class="like-count">0</span>
-							</button>
-							<button class="comment-button" onclick="toggleComment(this)">
-								<span class="comment-icon">💬</span>
-								<span>评论</span>
-							</button>
-							<div class="comment-section" style="display: none;">
-								哈哈哈，这也太棒了吧！！
-							</div>
-							<div class="comment-input-area" style="display: none;">
-								<textarea placeholder="写下你的评论..."></textarea>
-								<button class="comment-submit-btn" onclick="submitComment(this)">发表评论</button>
-							</div>
-						</div>
-						<div class="blog">
-							<div class="username">阳阳&&楠楠</div>
-							<div class="blog-content">今天，我们恋爱啦！请大家祝福我们！</div>
-							<div class="blog-picture">
-								<img src="D:\大学资料\图片集\图片1.jpg" alt="微博配图">
-							</div>
-							<button class="like-button" onclick="toggleLike(this)">
-								<span class="like-icon"></span>
-								<span>点赞</span>
-								<span class="like-count">0</span>
-							</button>
-							<button class="comment-button" onclick="toggleComment(this)">
-								<span class="comment-icon">💬</span>
-								<span>评论</span>
-							</button>
-							<div class="comment-section" style="display: none;">
-								哈哈哈，这也太棒了吧！！
-							</div>
-							<div class="comment-input-area" style="display: none;">
-								<textarea placeholder="写下你的评论..."></textarea>
-								<button class="comment-submit-btn" onclick="submitComment(this)">发表评论</button>
-							</div>
-						</div>
-						<div class="blog">
-							<div class="username">杭州发布</div>
-							<div class="blog-content">就在刚刚！官宣NO.1</div>
-							<div class="blog-picture">
-								<img src="D:\大学资料\图片集\图片1.jpg" alt="微博配图">
-							</div>
-							<button class="like-button" onclick="toggleLike(this)">
-								<span class="like-icon"></span>
-								<span>点赞</span>
-								<span class="like-count">0</span>
-							</button>
-							<button class="comment-button" onclick="toggleComment(this)">
-								<span class="comment-icon">💬</span>
-								<span>评论</span>
-							</button>
-							<div class="comment-section" style="display: none;">
-								哈哈哈，这也太棒了吧！！
-							</div>
-							<div class="comment-input-area" style="display: none;">
-								<textarea placeholder="写下你的评论..."></textarea>
-								<button class="comment-submit-btn" onclick="submitComment(this)">发表评论</button>
-							</div>
-						</div>
-						<div class="blog">
-							<div class="username">用户123456</div>
-							<div class="blog-content">这是我的第一条微博，记录一下今天的开心日常～</div>
-							<div class="blog-picture">
-								<img src="D:\大学资料\图片集\图片1.jpg" alt="微博配图">
-							</div>
-							<button class="like-button" onclick="toggleLike(this)">
-								<span class="like-icon"></span>
-								<span>点赞</span>
-								<span class="like-count">0</span>
-							</button>
-							<button class="comment-button" onclick="toggleComment(this)">
-								<span class="comment-icon">💬</span>
-								<span>评论</span>
-							</button>
-							<div class="comment-section" style="display: none;">
-								哈哈哈，这也太棒了吧！！
-							</div>
-							<div class="comment-input-area" style="display: none;">
-								<textarea placeholder="写下你的评论..."></textarea>
-								<button class="comment-submit-btn" onclick="submitComment(this)">发表评论</button>
-							</div>
-						</div>
-						<div class="blog">
-							<div class="username">银鑫城官方</div>
-							<div class="blog-content">今天我们入住XX微博啦！</div>
-							<div class="blog-picture">
-								<img src="D:\大学资料\图片集\图片1.jpg" alt="微博配图">
-							</div>
-							<button class="like-button" onclick="toggleLike(this)">
-								<span class="like-icon"></span>
-								<span>点赞</span>
-								<span class="like-count">0</span>
-							</button>
-							<button class="comment-button" onclick="toggleComment(this)">
-								<span class="comment-icon">💬</span>
-								<span>评论</span>
-							</button>
-							<div class="comment-section" style="display: none;">
-								哈哈哈，这也太棒了吧！！
-							</div>
-							<div class="comment-input-area" style="display: none;">
-								<textarea placeholder="写下你的评论..."></textarea>
-								<button class="comment-submit-btn" onclick="submitComment(this)">发表评论</button>
-							</div>
-						</div>
-						<div class="blog">
-							<div class="username">东北御姐（你的关注）</div>
-							<div class="blog-content">今天我们入住XX微博啦！</div>
-							<div class="blog-picture">
-								<img src="D:\大学资料\图片集\图片1.jpg" alt="微博配图">
-							</div>
-							<button class="like-button" onclick="toggleLike(this)">
-								<span class="like-icon"></span>
-								<span>点赞</span>
-								<span class="like-count">0</span>
-							</button>
-							<button class="comment-button" onclick="toggleComment(this)">
-								<span class="comment-icon">💬</span>
-								<span>评论</span>
-							</button>
-							<div class="comment-section" style="display: none;">
-								哈哈哈，这也太棒了吧！！
-							</div>
-							<div class="comment-input-area" style="display: none;">
-								<textarea placeholder="写下你的评论..."></textarea>
-								<button class="comment-submit-btn" onclick="submitComment(this)">发表评论</button>
-							</div>
-						</div>
+						<?php else: ?>
+							<?php foreach ($posts as $post): ?>
+								<div class="blog">
+									<div class="username"><?php echo htmlspecialchars($post['username']); ?></div>
+									<div class="blog-content"><?php echo nl2br(htmlspecialchars($post['content'])); ?></div>
+									<?php if (!empty($post['image'])): ?>
+									<div class="blog-picture">
+										<img src="<?php echo htmlspecialchars($post['image']); ?>" alt="微博配图">
+									</div>
+									<?php endif; ?>
+									<div class="post-time">
+										<small><?php echo date('Y-m-d H:i:s', strtotime($post['created_at'])); ?></small>
+									</div>
+									<button class="like-button" onclick="toggleLike(this)">
+										<span class="like-icon"></span>
+										<span>点赞</span>
+										<span class="like-count"><?php echo $post['likes_count']; ?></span>
+									</button>
+									<button class="comment-button" onclick="toggleComment(this)">
+										<span class="comment-icon">💬</span>
+										<span>评论</span>
+									</button>
+									<div class="comment-section" style="display: none;">
+										<!-- 评论将在这里动态加载 -->
+									</div>
+									<div class="comment-input-area" style="display: none;">
+										<textarea placeholder="写下你的评论..."></textarea>
+										<button class="comment-submit-btn" onclick="submitComment(this)">发表评论</button>
+									</div>
+								</div>
+							<?php endforeach; ?>
+						<?php endif; ?>
 					</div>
 				</div>
 				<div class="right-sider">
