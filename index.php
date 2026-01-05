@@ -52,10 +52,10 @@
 				
 			}
 			.blog{
-				text-align: center;
+				text-align: left;
 				margin: 10px 0;
 				padding: 8px 0;
-				border-bottom: 1px solid #f5fafe; /* 浅蓝灰分割线 */
+				border-bottom: 1px solid black; /* 黑色分割线 */
 			}
 			.footer{
 			    text-align:center;
@@ -133,19 +133,19 @@
 				font-weight: 600;
 				font-size: 15px;
 				margin-bottom: 6px;
-				text-align: center;
+				text-align: left;
 			}
 			.blog-content{
 				color: #4a5568;
 				font-size: 14px;
 				line-height: 1.6;
 				padding: 0 20px;
-				text-align: center;
+				text-align: left;
 				margin-bottom: 4px;
 			}
 			.blog-picture {
 			  margin: 8px 0; /* 与上下内容（博客内容/分割线）保持合理间距，避免拥挤 */
-			  text-align: center; /* 让图片水平居中，与博客整体风格统一 */
+			  text-align: left; /* 让图片水平居中，与博客整体风格统一 */
 			  padding: 0 20px; /* 左右留白，和 blog-content 保持一致，视觉协调 */
 			}
 			
@@ -309,6 +309,49 @@
 				background-size: contain;
 				vertical-align: text-bottom;
 			}
+			
+			/* 评论区域样式 */
+			.comment-section {
+				margin-top: 8px;
+				padding: 8px 20px;
+				color: #4a5568;
+				font-size: 13px;
+				background-color: #f8f9fa;
+				border-radius: 4px;
+			}
+			
+			/* 评论输入区域样式 */
+			.comment-input-area {
+				margin-top: 10px;
+				padding: 10px 20px;
+				background-color: #fafafa;
+				border-radius: 4px;
+				display: none;
+			}
+			
+			.comment-input-area textarea {
+				width: 100%;
+				min-height: 60px;
+				margin-bottom: 8px;
+				font-size: 13px;
+				font-family: inherit;
+				resize: vertical;
+			}
+			
+			.comment-submit-btn {
+				background-color: #66d9e8;
+				color: #2d3748;
+				border: none;
+				padding: 6px 16px;
+				border-radius: 4px;
+				cursor: pointer;
+				transition: background-color 0.2s;
+				font-size: 13px;
+			}
+			
+			.comment-submit-btn:hover {
+				background-color: #3bc9db;
+			}
 		</style>
 	</head>
 	<body>
@@ -354,10 +397,10 @@
 							&nbsp;
 							<input type="submit" name="content-submit" id="content-submit" value="一键分享">
 						</form>
-					</div>
+					</div><br/><br/>
 					<div class="blog-display">
 						<div class="blog">
-							<div class="usrname">章航渝(神人)</div>
+							<div class="username">章航渝(神人)</div>
 							<div class="blog-content">今天是昨天的明天，也就是明天的昨天.....</div>
 							<div class="blog-picture">
 								<img src="D:\大学资料\图片集\图片1.jpg" alt="微博配图">
@@ -367,9 +410,20 @@
 								<span>点赞</span>
 								<span class="like-count">0</span>
 							</button>
+							<button class="comment-button" onclick="toggleComment(this)">
+								<span class="comment-icon">💬</span>
+								<span>评论</span>
+							</button>
+							<div class="comment-section" style="display: none;">
+								章航渝的粉丝-甜妹：哈哈哈，这也太棒了吧！！（这里用于插入后端数据库中的代码）
+							</div>
+							<div class="comment-input-area" style="display: none;">
+								<textarea placeholder="写下你的评论..."></textarea>
+								<button class="comment-submit-btn" onclick="submitComment(this)">发表评论</button>
+							</div>
 						</div>
 						<div class="blog">
-							<div class="usrname">三生有幸（华裔润人）</div>
+							<div class="username">三生有幸（华裔润人）</div>
 							<div class="blog-content">人生第一次到纽约....真是我的精神故乡啊····</div>
 							<div class="blog-picture">
 								<img src="D:\大学资料\图片集\图片1.jpg" alt="微博配图">
@@ -379,9 +433,43 @@
 								<span>点赞</span>
 								<span class="like-count">0</span>
 							</button>
+							<button class="comment-button" onclick="toggleComment(this)">
+								<span class="comment-icon">💬</span>
+								<span>评论</span>
+							</button>
+							<div class="comment-section" style="display: none;">
+								哈哈哈，这也太棒了吧！！
+							</div>
+							<div class="comment-input-area" style="display: none;">
+								<textarea placeholder="写下你的评论..."></textarea>
+								<button class="comment-submit-btn" onclick="submitComment(this)">发表评论</button>
+							</div>
 						</div>
 						<div class="blog">
-							<div class="usrname">楠楠</div>
+							<div class="username">小确幸（华裔润人）</div>
+							<div class="blog-content">人生第一次到柬埔寨....真是我的精神故乡啊····</div>
+							<div class="blog-picture">
+								<img src="D:\大学资料\图片集\图片1.jpg" alt="微博配图">
+							</div>
+							<button class="like-button" onclick="toggleLike(this)">
+								<span class="like-icon"></span>
+								<span>点赞</span>
+								<span class="like-count">0</span>
+							</button>
+							<button class="comment-button" onclick="toggleComment(this)">
+								<span class="comment-icon">💬</span>
+								<span>评论</span>
+							</button>
+							<div class="comment-section" style="display: none;">
+								哈哈哈，这也太棒了吧！！
+							</div>
+							<div class="comment-input-area" style="display: none;">
+								<textarea placeholder="写下你的评论..."></textarea>
+								<button class="comment-submit-btn" onclick="submitComment(this)">发表评论</button>
+							</div>
+						</div>
+						<div class="blog">
+							<div class="username">阳阳&&楠楠</div>
 							<div class="blog-content">今天，我们恋爱啦！请大家祝福我们！</div>
 							<div class="blog-picture">
 								<img src="D:\大学资料\图片集\图片1.jpg" alt="微博配图">
@@ -391,9 +479,20 @@
 								<span>点赞</span>
 								<span class="like-count">0</span>
 							</button>
+							<button class="comment-button" onclick="toggleComment(this)">
+								<span class="comment-icon">💬</span>
+								<span>评论</span>
+							</button>
+							<div class="comment-section" style="display: none;">
+								哈哈哈，这也太棒了吧！！
+							</div>
+							<div class="comment-input-area" style="display: none;">
+								<textarea placeholder="写下你的评论..."></textarea>
+								<button class="comment-submit-btn" onclick="submitComment(this)">发表评论</button>
+							</div>
 						</div>
 						<div class="blog">
-							<div class="usrname">杭州发布</div>
+							<div class="username">杭州发布</div>
 							<div class="blog-content">就在刚刚！官宣NO.1</div>
 							<div class="blog-picture">
 								<img src="D:\大学资料\图片集\图片1.jpg" alt="微博配图">
@@ -403,6 +502,17 @@
 								<span>点赞</span>
 								<span class="like-count">0</span>
 							</button>
+							<button class="comment-button" onclick="toggleComment(this)">
+								<span class="comment-icon">💬</span>
+								<span>评论</span>
+							</button>
+							<div class="comment-section" style="display: none;">
+								哈哈哈，这也太棒了吧！！
+							</div>
+							<div class="comment-input-area" style="display: none;">
+								<textarea placeholder="写下你的评论..."></textarea>
+								<button class="comment-submit-btn" onclick="submitComment(this)">发表评论</button>
+							</div>
 						</div>
 						<div class="blog">
 							<div class="username">用户123456</div>
@@ -415,6 +525,17 @@
 								<span>点赞</span>
 								<span class="like-count">0</span>
 							</button>
+							<button class="comment-button" onclick="toggleComment(this)">
+								<span class="comment-icon">💬</span>
+								<span>评论</span>
+							</button>
+							<div class="comment-section" style="display: none;">
+								哈哈哈，这也太棒了吧！！
+							</div>
+							<div class="comment-input-area" style="display: none;">
+								<textarea placeholder="写下你的评论..."></textarea>
+								<button class="comment-submit-btn" onclick="submitComment(this)">发表评论</button>
+							</div>
 						</div>
 						<div class="blog">
 							<div class="username">银鑫城官方</div>
@@ -427,6 +548,40 @@
 								<span>点赞</span>
 								<span class="like-count">0</span>
 							</button>
+							<button class="comment-button" onclick="toggleComment(this)">
+								<span class="comment-icon">💬</span>
+								<span>评论</span>
+							</button>
+							<div class="comment-section" style="display: none;">
+								哈哈哈，这也太棒了吧！！
+							</div>
+							<div class="comment-input-area" style="display: none;">
+								<textarea placeholder="写下你的评论..."></textarea>
+								<button class="comment-submit-btn" onclick="submitComment(this)">发表评论</button>
+							</div>
+						</div>
+						<div class="blog">
+							<div class="username">东北御姐（你的关注）</div>
+							<div class="blog-content">今天我们入住XX微博啦！</div>
+							<div class="blog-picture">
+								<img src="D:\大学资料\图片集\图片1.jpg" alt="微博配图">
+							</div>
+							<button class="like-button" onclick="toggleLike(this)">
+								<span class="like-icon"></span>
+								<span>点赞</span>
+								<span class="like-count">0</span>
+							</button>
+							<button class="comment-button" onclick="toggleComment(this)">
+								<span class="comment-icon">💬</span>
+								<span>评论</span>
+							</button>
+							<div class="comment-section" style="display: none;">
+								哈哈哈，这也太棒了吧！！
+							</div>
+							<div class="comment-input-area" style="display: none;">
+								<textarea placeholder="写下你的评论..."></textarea>
+								<button class="comment-submit-btn" onclick="submitComment(this)">发表评论</button>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -521,6 +676,53 @@
 					fileInput.click();
 				});
 			});
+			
+			// 评论功能实现
+			function toggleComment(button) {
+				// 找到该博客对应的评论区域
+				const blogDiv = button.closest('.blog');
+				const commentSection = blogDiv.querySelector('.comment-section');
+				const commentInputArea = blogDiv.querySelector('.comment-input-area');
+				
+				// 切换显示/隐藏状态
+				if (commentSection.style.display === 'none' || commentSection.style.display === '') {
+					commentSection.style.display = 'block';
+					commentInputArea.style.display = 'block';
+				} else {
+					commentSection.style.display = 'none';
+					commentInputArea.style.display = 'none';
+				}
+			}
+			
+			// 发表评论功能实现
+			function submitComment(button) {
+				const commentInputArea = button.closest('.comment-input-area');
+				const textarea = commentInputArea.querySelector('textarea');
+				const commentText = textarea.value.trim();
+				
+				if (commentText === '') {
+					alert('请输入评论内容！');
+					return;
+				}
+				
+				// 找到对应的评论区域
+				const blogDiv = commentInputArea.closest('.blog');
+				const commentSection = blogDiv.querySelector('.comment-section');
+				
+				// 创建新评论
+				const newComment = document.createElement('div');
+				newComment.textContent = '当前用户：' + commentText;
+				newComment.style.marginBottom = '8px';
+				
+				// 将新评论添加到评论区域
+				commentSection.appendChild(newComment);
+				
+				// 清空输入框
+				textarea.value = '';
+				
+				// 确保评论区域可见
+				commentSection.style.display = 'block';
+			}
 		</script>
 	</body>
 </html>
