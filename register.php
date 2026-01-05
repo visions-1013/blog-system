@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
 	<head>
 		<meta charset="utf-8">
 		<title>XX客户端注册界面</title>
-		<link rel="stylesheet" href="style.css">
+		<link rel="stylesheet" href="static\css\style.css">
 	</head>
 	<body>
     <!-- 标题区域 -->
