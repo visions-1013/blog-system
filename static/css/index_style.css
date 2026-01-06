@@ -1,4 +1,4 @@
-*{
+           *{
 				margin:0;
 				padding:0;
 				box-sizing:border-box;
@@ -41,9 +41,6 @@
 			}
 			.blog-area{
 				text-align:center;
-			}
-			.blog-display{
-				
 			}
 			.blog{
 				text-align: left;
@@ -151,14 +148,6 @@
 			  width: auto; /* 宽度随高度自适应，防止图片拉伸变形 */
 			  height: auto; /* 高度随宽度自适应，保持 */
 			  }
-			/* 兼容原有usrname类名 */
-			.usrname{
-				color: #2d3748;
-				font-weight: 600;
-				font-size: 15px;
-				margin-bottom: 6px;
-				text-align: center;
-			}
 			
 			/* 点赞按钮样式 */
 			.like-button {
