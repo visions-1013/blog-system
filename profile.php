@@ -1,8 +1,44 @@
+<?php
+session_start();
+require_once __DIR__ . '/config/db_connect.php';
+
+// 检查是否已登录，未登录则跳转到登录页
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit;
+}
+
+// 处理退出登录请求
+if (isset($_GET['logout']) && $_GET['logout'] == '1') {
+    session_destroy();
+    header('Location: login.php');
+    exit;
+}
+
+// 获取当前登录用户信息
+$currentUserId = $_SESSION['user_id'];
+$username = $_SESSION['username'];
+
+// 从数据库查询用户的往期发布
+try {
+    $sql = "SELECT id, content, image, created_at 
+            FROM posts 
+            WHERE user_id = ? 
+            ORDER BY created_at DESC 
+            LIMIT 20";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$currentUserId]);
+    $posts = $stmt->fetchAll();
+} catch (PDOException $e) {
+    $posts = [];
+    $error = '获取发布内容失败';
+}
+?>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
-    <title>页面标题</title>
+    <title>个人中心 - <?php echo htmlspecialchars($username); ?></title>
     <link rel="stylesheet" href="static\css\profile_style.css">
 </head>
 <body>
@@ -10,11 +46,11 @@
     <div class="container">
         <div class="header">
             <div class="head-left">
-                <h3>亲爱的（用户名称），欢迎回来!</h3>
+                <h3>亲爱的<?php echo htmlspecialchars($username); ?>，欢迎回来!</h3>
             </div>
             <div class="head-right">
 				<h3>XX微博-个人中心</h3>
-                <br/><br/><br/>退出登录
+                <br/><br/><br/><a href="?logout=1" style="color: #666; text-decoration: none;">退出登录</a>
             </div>
         </div>
 
@@ -46,27 +82,27 @@
 
                 <div class="blog-display">
                     <p>您的往期发布</p>
-					<div class="blog">
-						<div class="data">2023-10-15 14:30</div>
-						<div class="blog-content">今天是昨天的明天，也就是明天的昨天.....</div>
-						<div class="blog-picture">
-							<img src="D:\大学资料\图片集\图片1.jpg" alt="微博配图">
-						</div>
-					</div>
-					<div class="blog">
-						<div class="data">2023-10-10 09:15</div>
-						<div class="blog-content">人生第一次到纽约....真是我的精神故乡啊····</div>
-						<div class="blog-picture">
-							<img src="D:\大学资料\图片集\图片1.jpg" alt="微博配图">
-						</div>
-					</div>
-					<div class="blog">
-						<div class="data">2023-09-28 18:45</div>
-						<div class="blog-content">今天，我们恋爱啦！请大家祝福我们！</div>
-						<div class="blog-picture">
-							<img src="D:\大学资料\图片集\图片1.jpg" alt="微博配图">
-						</div>
-					</div>
+                    <?php if (isset($error)): ?>
+                        <div class="error-message" style="color: darkred;">
+                            <?php echo htmlspecialchars($error); ?>
+                        </div>
+                    <?php elseif (empty($posts)): ?>
+                        <div class="no-posts" style="text-align: center; color: #999; padding: 20px;">
+                            您还没有发布任何微博，快去分享您的第一条动态吧！
+                        </div>
+                    <?php else: ?>
+                        <?php foreach ($posts as $post): ?>
+                        <div class="blog">
+                            <div class="data"><?php echo htmlspecialchars($post['created_at']); ?></div>
+                            <div class="blog-content"><?php echo htmlspecialchars($post['content']); ?></div>
+                            <?php if (!empty($post['image'])): ?>
+                            <div class="blog-picture">
+                                <img src="<?php echo htmlspecialchars($post['image']); ?>" alt="微博配图">
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </div>
             </div>
 

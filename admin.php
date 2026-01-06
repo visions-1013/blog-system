@@ -1,3 +1,57 @@
+<?php
+session_start();
+require_once __DIR__ . '/config/db_connect.php';
+
+// 处理退出登录
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout'])) {
+    session_destroy();
+    header('Location: login.php');
+    exit;
+}
+
+// 处理删除帖子
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_post_id'])) {
+    $post_id = (int)$_POST['delete_post_id'];
+    try {
+        $sql = "DELETE FROM posts WHERE id = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$post_id]);
+        // 删除成功，刷新页面
+        header('Location: admin.php');
+        exit;
+    } catch (PDOException $e) {
+        // 删除失败，可以添加错误处理
+    }
+}
+
+// 检查是否已登录
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['role'])) {
+    header('Location: login.php');
+    exit;
+}
+
+// 检查是否为管理员
+if ((int)$_SESSION['role'] !== 1) {
+    header('Location: index.php');
+    exit;
+}
+
+$adminUsername = isset($_SESSION['username']) ? htmlspecialchars($_SESSION['username'], ENT_QUOTES, 'UTF-8') : '管理员';
+
+// 查询所有帖子
+$posts = [];
+try {
+    $sql = "SELECT p.*, u.username 
+            FROM posts p 
+            LEFT JOIN users u ON p.user_id = u.id 
+            ORDER BY p.created_at DESC";
+    $stmt = $pdo->query($sql);
+    $posts = $stmt->fetchAll();
+} catch (PDOException $e) {
+    // 查询失败，$posts为空数组
+    $posts = [];
+}
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -9,11 +63,14 @@
     <div class="container">
         <div class="header">
             <div class="head-left">
-                <h3>管理员 admin，您好！</h3>
+                <h3>管理员 <?php echo $adminUsername; ?>，您好！</h3>
             </div>
             <div class="head-right">
                 <h3>管理系统</h3>
-                <br/><br/><button class="admin-btn btn-warning" onclick="logout()">退出登录</button>
+                <br/><br/>
+                <form action="" method="post">
+                    <button type="submit" name="logout" value="1" class="admin-btn btn-warning">退出登录</button>
+                </form>
             </div>
         </div>
 
@@ -35,100 +92,37 @@
                         <button class="admin-btn" onclick="search()">搜索</button>
                     </div>
                     
-                    <!-- 用户发帖内容1 -->
-                    <div class="data-card">
-                        <div class="post-info">
-                            <div>
-                                <strong>用户：</strong>章航渝(神人) (ID: U10023) |
-                                <strong>时间：</strong>2023-10-15 14:30
+                    <?php if (empty($posts)): ?>
+                        <div class="data-card" style="text-align: center; padding: 20px;">
+                            <p style="color: #718096;">暂无帖子</p>
+                        </div>
+                    <?php else: ?>
+                        <?php foreach ($posts as $post): ?>
+                            <!-- 用户发帖内容 -->
+                            <div class="data-card">
+                                <div class="post-info">
+                                    <div>
+                                        <strong>用户：</strong><?php echo htmlspecialchars($post['username']); ?> (ID: <?php echo $post['id']; ?>) |
+                                        <strong>时间：</strong><?php echo date('Y-m-d H:i', strtotime($post['created_at'])); ?>
+                                    </div>
+                                </div>
+                                <div class="post-content">
+                                    <?php echo nl2br(htmlspecialchars($post['content'])); ?>
+                                </div>
+                                <?php if (!empty($post['image'])): ?>
+                                    <div class="post-image">
+                                        <img src="<?php echo htmlspecialchars($post['image']); ?>" alt="微博配图">
+                                    </div>
+                                <?php endif; ?>
+                                <div style="margin-top: 10px;">
+                                    <form action="" method="post">
+                                        <input type="hidden" name="delete_post_id" value="<?php echo $post['id']; ?>">
+                                        <button type="submit" class="admin-btn btn-danger">删除</button>
+                                    </form>
+                                </div>
                             </div>
-                        </div>
-                        <div class="post-content">
-                            今天是昨天的明天，也就是明天的昨天.....
-                        </div>
-                        <div class="post-image">
-                            <img src="" alt="微博配图">
-                        </div>
-                        <div style="margin-top: 10px;">
-                            <button class="admin-btn btn-danger" onclick="deletePost('P001')">删除</button>
-                        </div>
-                    </div>
-                    
-                    <!-- 用户发帖内容2 -->
-                    <div class="data-card">
-                        <div class="post-info">
-                            <div>
-                                <strong>用户：</strong>三生有幸 (ID: U10022) |
-                                <strong>时间：</strong>2023-10-10 09:15
-                            </div>
-                        </div>
-                        <div class="post-content">
-                            人生第一次到纽约....真是我的精神故乡啊····
-                        </div>
-                        <div class="post-image">
-                            <img src="" alt="微博配图">
-                        </div>
-                        <div style="margin-top: 10px;">
-                            <button class="admin-btn btn-danger" onclick="deletePost('P002')">删除</button>
-                        </div>
-                    </div>
-                    
-                    <!-- 用户发帖内容3 -->
-                    <div class="data-card">
-                        <div class="post-info">
-                            <div>
-                                <strong>用户：</strong>周凯涵 (ID: U10021) |
-                                <strong>时间：</strong>2023-10-13 18:45
-                            </div>
-                        </div>
-                        <div class="post-content">
-                            今天，我们恋爱啦！请大家祝福我们！❤️🎉
-                        </div>
-                        <div class="post-image">
-                            <img src="" alt="微博配图">
-                        </div>
-                        <div style="margin-top: 10px;">
-                            <button class="admin-btn btn-danger" onclick="deletePost('P003')">删除</button>
-                        </div>
-                    </div>
-                    
-                    <!-- 用户发帖内容4 -->
-                    <div class="data-card">
-                        <div class="post-info">
-                            <div>
-                                <strong>用户：</strong>楠楠 (ID: U10020) |
-                                <strong>时间：</strong>2023-09-28 18:45
-                            </div>
-                        </div>
-                        <div class="post-content">
-                            分享今天的美食探店经历！这家日料店的寿司真的绝了，强烈推荐给大家！
-                        </div>
-                        <div class="post-image">
-                            <img src="" alt="微博配图">
-                        </div>
-                        <div style="margin-top: 10px;">
-                            <button class="admin-btn btn-danger" onclick="deletePost('P004')">删除</button>
-                        </div>
-                    </div>
-                    
-                    <!-- 用户发帖内容5 -->
-                    <div class="data-card">
-                        <div class="post-info">
-                            <div>
-                                <strong>用户：</strong>杭州小航 (ID: U10019) |
-                                <strong>时间：</strong>2023-09-25 10:20
-                            </div>
-                        </div>
-                        <div class="post-content">
-                            今天的学习笔记：前端开发中的CSS Grid布局真的太强大了！
-                        </div>
-                        <div class="post-image">
-                            <img src="" alt="学习笔记截图">
-                        </div>
-                        <div style="margin-top: 10px;">
-                            <button class="admin-btn btn-danger" onclick="deletePost('P005')">删除</button>
-                        </div>
-                    </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </div>
             </div>
 
