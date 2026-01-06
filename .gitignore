@@ -1,3 +1,6 @@
 .idea
 .DS_Store
-static/img/
+# 忽略 img 里的所有内容
+static/img/**
+# 但放行一个占位文件（用来让目录被 Git 跟踪）
+!static/img/.gitkeep
