@@ -24,6 +24,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_post_id'])) {
     }
 }
 
+// 处理删除用户
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_user_id'])) {
+    $user_id = (int)$_POST['delete_user_id'];
+    try {
+        // 先删除该用户的所有帖子
+        $sql = "DELETE FROM posts WHERE user_id = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$user_id]);
+        
+        // 再删除用户
+        $sql = "DELETE FROM users WHERE id = ? AND role != 1";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$user_id]);
+        
+        // 删除成功，刷新页面
+        header('Location: admin.php');
+        exit;
+    } catch (PDOException $e) {
+        // 删除失败，可以添加错误处理
+    }
+}
+
 // 检查是否已登录
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role'])) {
     header('Location: login.php');
@@ -51,6 +73,19 @@ try {
     // 查询失败，$posts为空数组
     $posts = [];
 }
+
+// 查询所有用户
+$users = [];
+try {
+    $sql = "SELECT id, username, role, created_at 
+            FROM users 
+            ORDER BY id DESC";
+    $stmt = $pdo->query($sql);
+    $users = $stmt->fetchAll();
+} catch (PDOException $e) {
+    // 查询失败，$users为空数组
+    $users = [];
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -76,14 +111,15 @@ try {
 
         <div class="admin-nav">
             <ul>
-                <li class="active"><a href="#">内容管理</a></li>
-                <li><a href="#">用户管理</a></li>
+                <li class="active" onclick="switchTab('content')"><a href="javascript:;">内容管理</a></li>
+                <li onclick="switchTab('user')"><a href="javascript:;">用户管理</a></li>
             </ul>
         </div>
 
         <div class="body">
             <div class="main-part">
-                <div class="admin-display">
+                <!-- 内容管理部分 -->
+                <div id="content-management" class="admin-display">
                     <h4>发帖内容管理</h4>
                     
                     <!-- 搜索区域 -->
@@ -124,126 +160,55 @@ try {
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
-            </div>
 
-            <!-- 右侧边栏 - 用户管理 -->
-            <div class="right-sider">
-                <h4>用户管理</h4>
-                
-                <!-- 用户搜索 -->
-                <div class="search-area">
-                    <form action="" method="post">
-                    <input type="text" class="search-input" id="userSearch" placeholder="搜索用户名...">
-                    <button class="admin-btn" onclick="search()">搜索</button>
-                    </form>
-                </div>
-                
-                <div class="user-list">
-                    <!-- 用户卡片1 -->
-                    <div class="user-card">
-                        <div class="user-name">章航渝(神人)</div>
-                        <div class="user-id">ID: U10023</div>
-                        <div class="user-status status-normal">正常</div>
-                        <div>
-                            <button class="admin-btn btn-danger" style="font-size: 11px; padding: 4px 8px;" onclick="banUser('U10023')">注销账号</button>
-                        </div>
+                <!-- 用户管理部分 -->
+                <div id="user-management" class="admin-display" style="display: none;">
+                    <h4>用户管理</h4>
+                    
+                    <!-- 用户搜索 -->
+                    <div class="search-area">
+                        <input type="text" class="search-input" id="userSearch" placeholder="搜索用户名...">
+                        <button class="admin-btn" onclick="searchUser()">搜索</button>
                     </div>
                     
-                    <!-- 用户卡片2 -->
-                    <div class="user-card">
-                        <div class="user-name">三生有幸</div>
-                        <div class="user-id">ID: U10022</div>
-                        <div class="user-status status-normal">正常</div>
-                        <div>
-                            <button class="admin-btn btn-danger" style="font-size: 11px; padding: 4px 8px;" onclick="banUser('U10022')">注销账号</button>
+                    <?php if (empty($users)): ?>
+                        <div class="data-card" style="text-align: center; padding: 20px;">
+                            <p style="color: #718096;">暂无用户</p>
                         </div>
-                    </div>
-                    
-                    <!-- 用户卡片3 -->
-                    <div class="user-card">
-                        <div class="user-name">周凯涵</div>
-                        <div class="user-id">ID: U10021</div>
-                        <div class="user-status status-banned">已注销</div>
-                        <div>
+                    <?php else: ?>
+                        <div class="user-list">
+                            <?php foreach ($users as $user): ?>
+                                <div class="user-card">
+                                    <div class="user-name"><?php echo htmlspecialchars($user['username']); ?></div>
+                                    <div class="user-id">ID: <?php echo $user['id']; ?></div>
+                                    <div class="user-status <?php echo (int)$user['role'] === 1 ? 'status-admin' : 'status-normal'; ?>">
+                                        <?php echo (int)$user['role'] === 1 ? '管理员' : '正常用户'; ?>
+                                    </div>
+                                    <div>
+                                        <?php if ((int)$user['role'] !== 1): ?>
+                                        <form action="" method="post">
+                                            <input type="hidden" name="delete_user_id" value="<?php echo $user['id']; ?>">
+                                            <button type="submit" class="admin-btn btn-danger" style="font-size: 11px; padding: 4px 8px;">删除用户</button>
+                                        </form>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
-                    </div>
-                    
-                    <!-- 用户卡片4 -->
-                    <div class="user-card">
-                        <div class="user-name">楠楠</div>
-                        <div class="user-id">ID: U10020</div>
-                        <div class="user-status status-normal">正常</div>
-                        <div>
-                            <button class="admin-btn btn-danger" style="font-size: 11px; padding: 4px 8px;" onclick="banUser('U10020')">注销账号</button>
+                        
+                        <h4 style="margin-top: 20px;">用户统计</h4>
+                        <div style="font-size: 12px; color: #718096;">
+                            <div>总用户数: <?php echo count($users); ?></div>
+                            <?php 
+                            $adminCount = 0;
+                            foreach ($users as $user) {
+                                if ((int)$user['role'] === 1) $adminCount++;
+                            }
+                            ?>
+                            <div>管理员: <?php echo $adminCount; ?></div>
+                            <div>普通用户: <?php echo count($users) - $adminCount; ?></div>
                         </div>
-                    </div>
-                    
-                    <!-- 用户卡片5 -->
-                    <div class="user-card">
-                        <div class="user-name">杭州小航</div>
-                        <div class="user-id">ID: U10019</div>
-                        <div class="user-status status-normal">正常</div>
-                        <div>
-                            <button class="admin-btn btn-danger" style="font-size: 11px; padding: 4px 8px;" onclick="banUser('U10019')">注销账号</button>
-                        </div>
-                    </div>
-                    
-                    <!-- 用户卡片6 -->
-                    <div class="user-card">
-                        <div class="user-name">重庆小渝</div>
-                        <div class="user-id">ID: U10018</div>
-                        <div class="user-status status-normal">正常</div>
-                        <div>
-                            <button class="admin-btn btn-danger" style="font-size: 11px; padding: 4px 8px;" onclick="banUser('U10018')">注销账号</button>
-                        </div>
-                    </div>
-                    
-                    <!-- 用户卡片7 -->
-                    <div class="user-card">
-                        <div class="user-name">白月光</div>
-                        <div class="user-id">ID: U10017</div>
-                        <div class="user-status status-normal">正常</div>
-                        <div>
-                            <button class="admin-btn btn-danger" style="font-size: 11px; padding: 4px 8px;" onclick="banUser('U10017')">注销账号</button>
-                        </div>
-                    </div>
-                    
-                    <!-- 用户卡片8 -->
-                    <div class="user-card">
-                        <div class="user-name">小和山生活</div>
-                        <div class="user-id">ID: U10016</div>
-                        <div class="user-status status-normal">正常</div>
-                        <div>
-                            <button class="admin-btn btn-danger" style="font-size: 11px; padding: 4px 8px;" onclick="banUser('U10016')">注销账号</button>
-                        </div>
-                    </div>
-                    
-                    <!-- 用户卡片9 -->
-                    <div class="user-card">
-                        <div class="user-name">科技前沿</div>
-                        <div class="user-id">ID: U10015</div>
-                        <div class="user-status status-normal">正常</div>
-                        <div>
-                            <button class="admin-btn btn-danger" style="font-size: 11px; padding: 4px 8px;" onclick="banUser('U10015')">注销账号</button>
-                        </div>
-                    </div>
-                    
-                    <!-- 用户卡片10 -->
-                    <div class="user-card">
-                        <div class="user-name">美食探店</div>
-                        <div class="user-id">ID: U10014</div>
-                        <div class="user-status status-normal">正常</div>
-                        <div>
-                            <button class="admin-btn btn-danger" style="font-size: 11px; padding: 4px 8px;" onclick="banUser('U10014')">注销账号</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <h4>用户统计</h4>
-                <div style="font-size: 12px; color: #718096;">
-                    <div>总用户数: 1256</div>
-                    <div>正常用户: 1240</div>
-                    <div>已注销: 16</div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -256,7 +221,45 @@ try {
     </div>
 
     <script>
+        // 切换标签页
+        function switchTab(tabName) {
+            // 获取所有管理区域的元素
+            var contentManagement = document.getElementById('content-management');
+            var userManagement = document.getElementById('user-management');
+            
+            // 获取所有导航项
+            var navItems = document.querySelectorAll('.admin-nav li');
+            
+            // 移除所有导航项的active类
+            navItems.forEach(function(item) {
+                item.classList.remove('active');
+            });
+            
+            // 根据点击的标签显示对应内容
+            if (tabName === 'content') {
+                contentManagement.style.display = 'block';
+                userManagement.style.display = 'none';
+                navItems[0].classList.add('active');
+            } else if (tabName === 'user') {
+                contentManagement.style.display = 'none';
+                userManagement.style.display = 'block';
+                navItems[1].classList.add('active');
+            }
+        }
         
+        // 搜索功能（预留）
+        function search() {
+            var searchValue = document.getElementById('searchInput').value;
+            // 可以在这里添加搜索逻辑
+            console.log('搜索内容：' + searchValue);
+        }
+        
+        // 用户搜索功能（预留）
+        function searchUser() {
+            var searchValue = document.getElementById('userSearch').value;
+            // 可以在这里添加用户搜索逻辑
+            console.log('搜索用户：' + searchValue);
+        }
     </script>
 </body>
 </html>

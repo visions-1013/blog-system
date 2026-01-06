@@ -131,6 +131,48 @@ body {
     border-color: #cbd5e1;
 }
 
+/* 错误容器样式 */
+.err-container {
+    position: relative;
+    margin-top: 15px;
+    min-height: 30px;
+}
+
+/* 错误信息样式 */
+.err {
+    font-size: 13px;
+    color: darkred;
+    min-height: 18px;
+}
+
+/* 前往注册链接容器样式 - 在err-container内时绝对定位 */
+.err-container .waytoregister {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 5px;
+}
+
+/* 前往注册链接容器样式 - 直接在form内时相对定位 */
+.form-group + .btn-group + .waytoregister,
+.auth-form > form > .waytoregister {
+    margin-top: 15px;
+    text-align: center;
+}
+
+/* 前往注册链接样式 */
+.waytoregister a {
+    color: #2563eb;
+    text-decoration: none;
+    font-size: 13px;
+    transition: color 0.3s;
+}
+
+.waytoregister a:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+
 /* 底部版权信息样式 */
 .auth-footer {
     text-align: center;
