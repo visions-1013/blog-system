@@ -125,7 +125,7 @@ try {
 			<div class="header">
 				<div class="head-left">
 					<h3>欢迎您访问XX微博!!在此记录生活，畅抒己见!</h3></br>
-					<form method="post" action="">
+					<form method="get" action="search.php">
 						<input type="text" name="search" id="search" placeholder="搜索您想看的blog..."/>
 						<input type="submit" name="search-submit" id="search-submit" value="点击搜索"/>
 					</form>

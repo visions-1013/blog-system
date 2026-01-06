@@ -1,7 +1,33 @@
+<?php
+session_start();
+require_once 'config/db_connect.php';
+
+// 获取搜索关键词
+$search_keyword = isset($_GET['search']) ? trim($_GET['search']) : '';
+
+// 查询搜索结果
+$posts = [];
+if (!empty($search_keyword)) {
+    try {
+        $sql = "SELECT p.*, u.username 
+                FROM posts p 
+                LEFT JOIN users u ON p.user_id = u.id 
+                WHERE p.content LIKE ? OR u.username LIKE ?
+                ORDER BY p.created_at DESC";
+        $stmt = $pdo->prepare($sql);
+        $keyword = "%$search_keyword%";
+        $stmt->execute([$keyword, $keyword]);
+        $posts = $stmt->fetchAll();
+    } catch (PDOException $e) {
+        // 查询失败，$posts为空数组
+        $posts = [];
+    }
+}
+?>
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Search</title>
+        <title>搜索结果</title>
         <meta charset="utf-8">
         <link rel="stylesheet" href="static\css\search_style.css">   
     </head>
@@ -9,7 +35,7 @@
         <div class="container">
         <div class="header">
             <div class="head-left">
-            <h3>以下是您输入的内容（前端）的搜索结果</h3>
+            <h3>搜索：<?php echo htmlspecialchars($search_keyword); ?> 的结果</h3>
             </div>
             <div class="head-right">
                 <a href="index.php" class="index_button">返回主页</a>
@@ -21,99 +47,47 @@
 
             <div class="main-part">
             
-            <div class="blog">
-			<div class="username">张航与 </div>
-			<div class="blog-content">我是Sister Bins的好朋友</div>
-			<div class="blog-picture">
-				<img src="" alt="微博配图"></div>
-				<button class="like-button" onclick="toggleLike(this)">
-					<span class="like-icon"></span>
-					<span>点赞</span>
-					<span class="like-count">0</span>
-				</button>
-				<button class="comment-button" onclick="toggleComment(this)">
-					<span class="comment-icon">💬</span>
-					<span>评论</span>
-				</button>
-				<div class="comment-section" style="display: none;">
-					哈哈哈，这也太棒了吧！！
-				</div>
-				<div class="comment-input-area" style="display: none;">
-					<textarea placeholder="写下你的评论..."></textarea>
-					<button class="comment-submit-btn" onclick="submitComment(this)">发表评论</button>
-				</div>
-            </div>
-
-            <div class="blog">
-			<div class="username">张航与 </div>
-			<div class="blog-content">我是Sister Bins的好朋友</div>
-			<div class="blog-picture">
-				<img src="" alt="微博配图"></div>
-				<button class="like-button" onclick="toggleLike(this)">
-					<span class="like-icon"></span>
-					<span>点赞</span>
-					<span class="like-count">0</span>
-				</button>
-				<button class="comment-button" onclick="toggleComment(this)">
-					<span class="comment-icon">💬</span>
-					<span>评论</span>
-				</button>
-				<div class="comment-section" style="display: none;">
-					哈哈哈，这也太棒了吧！！
-				</div>
-				<div class="comment-input-area" style="display: none;">
-					<textarea placeholder="写下你的评论..."></textarea>
-					<button class="comment-submit-btn" onclick="submitComment(this)">发表评论</button>
-				</div>
-            </div>
-
-
-            <div class="blog">
-			<div class="username">张航与 </div>
-			<div class="blog-content">我是Sister Bins的好朋友</div>
-			<div class="blog-picture">
-				<img src="" alt="微博配图"></div>
-				<button class="like-button" onclick="toggleLike(this)">
-					<span class="like-icon"></span>
-					<span>点赞</span>
-					<span class="like-count">0</span>
-				</button>
-				<button class="comment-button" onclick="toggleComment(this)">
-					<span class="comment-icon">💬</span>
-					<span>评论</span>
-				</button>
-				<div class="comment-section" style="display: none;">
-					哈哈哈，这也太棒了吧！！
-				</div>
-				<div class="comment-input-area" style="display: none;">
-					<textarea placeholder="写下你的评论..."></textarea>
-					<button class="comment-submit-btn" onclick="submitComment(this)">发表评论</button>
-				</div>
-            </div>
-
-
-            <div class="blog">
-			<div class="username">张航与 </div>
-			<div class="blog-content">我是Sister Bins的好朋友</div>
-			<div class="blog-picture">
-				<img src="" alt="微博配图"></div>
-				<button class="like-button" onclick="toggleLike(this)">
-					<span class="like-icon"></span>
-					<span>点赞</span>
-					<span class="like-count">0</span>
-				</button>
-				<button class="comment-button" onclick="toggleComment(this)">
-					<span class="comment-icon">💬</span>
-					<span>评论</span>
-				</button>
-				<div class="comment-section" style="display: none;">
-					哈哈哈，这也太棒了吧！！
-				</div>
-				<div class="comment-input-area" style="display: none;">
-					<textarea placeholder="写下你的评论..."></textarea>
-					<button class="comment-submit-btn" onclick="submitComment(this)">发表评论</button>
-				</div>
-            </div>
+            <?php if (empty($search_keyword)): ?>
+                <div class="no-posts">
+                    <p>请输入搜索关键词</p>
+                </div>
+            <?php elseif (empty($posts)): ?>
+                <div class="no-posts">
+                    <p>未找到包含"<?php echo htmlspecialchars($search_keyword); ?>"的相关微博</p>
+                </div>
+            <?php else: ?>
+                <div class="search-info">
+                    <p>找到 <?php echo count($posts); ?> 条相关微博</p>
+                </div>
+                
+                <?php foreach ($posts as $post): ?>
+                    <div class="blog">
+                        <div class="username"><?php echo htmlspecialchars($post['username']); ?></div>
+                        <div class="blog-content"><?php echo nl2br(htmlspecialchars($post['content'])); ?></div>
+                        <?php if (!empty($post['image'])): ?>
+                        <div class="blog-picture">
+                            <img src="<?php echo htmlspecialchars($post['image']); ?>" alt="微博配图">
+                        </div>
+                        <?php endif; ?>
+                        <button class="like-button" onclick="toggleLike(this)">
+                            <span class="like-icon"></span>
+                            <span>点赞</span>
+                            <span class="like-count"><?php echo $post['likes_count']; ?></span>
+                        </button>
+                        <button class="comment-button" onclick="toggleComment(this)">
+                            <span class="comment-icon">💬</span>
+                            <span>评论</span>
+                        </button>
+                        <div class="comment-section" style="display: none;">
+                            <!-- 评论将在这里动态加载 -->
+                        </div>
+                        <div class="comment-input-area" style="display: none;">
+                            <textarea placeholder="写下你的评论..."></textarea>
+                            <button class="comment-submit-btn" onclick="submitComment(this)">发表评论</button>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
 
             </div>
 
