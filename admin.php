@@ -1,3 +1,20 @@
+<?php
+session_start();
+
+// 检查是否已登录
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['role'])) {
+    header('Location: login.php');
+    exit;
+}
+
+// 检查是否为管理员
+if ((int)$_SESSION['role'] !== 1) {
+    header('Location: index.php');
+    exit;
+}
+
+$adminUsername = isset($_SESSION['username']) ? htmlspecialchars($_SESSION['username'], ENT_QUOTES, 'UTF-8') : '管理员';
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -9,7 +26,7 @@
     <div class="container">
         <div class="header">
             <div class="head-left">
-                <h3>管理员 admin，您好！</h3>
+                <h3>管理员 <?php echo $adminUsername; ?>，您好！</h3>
             </div>
             <div class="head-right">
                 <h3>管理系统</h3>

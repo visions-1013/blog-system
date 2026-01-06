@@ -66,7 +66,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['role'] = (int)$user['role'];
                     $_SESSION['avatar'] = (string)$user['avatar'];
 
-                    header('Location: index.php');
+                    // 如果是管理员，跳转到管理页面；否则跳转到首页
+                    if ((int)$user['role'] === 1) {
+                        header('Location: admin.php');
+                    } else {
+                        header('Location: index.php');
+                    }
                     exit;
                 }
             }
