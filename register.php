@@ -128,6 +128,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                 <input type="submit" name="submit" id="submit" value="现在注册!" class="btn-primary" />
                 <input type="reset" name="reset" id="reset" value="重置信息!" class="btn-secondary">
             </div>
+            <div class="waytoregister"><a href="login.php" target="_blank">前往登录</a></div>
         </form>
     </div>
 

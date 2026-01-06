@@ -121,7 +121,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <button type="submit" id="submit" class="btn-primary">现在登录！</button>
                 <button type="reset" id="reset" class="btn-secondary">重置信息！</button>
             </div>
-            <div id="errInfo" class="err"></div>
+            <div class="err-container">
+                <div id="errInfo" class="err"></div>
+            </div>
+            <div class="waytoregister"><a href="register.php" target="_blank">没有账号？前往注册！</a></div>
         </form>
     </div>
 
