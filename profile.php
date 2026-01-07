@@ -15,6 +15,21 @@ if (isset($_GET['logout']) && $_GET['logout'] == '1') {
     exit;
 }
 
+// 处理删除帖子请求
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_post_id'])) {
+    $post_id = (int)$_POST['delete_post_id'];
+    try {
+        $sql = "DELETE FROM posts WHERE id = ? AND user_id = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$post_id, $currentUserId]);
+        // 删除成功，刷新页面
+        header('Location: profile.php');
+        exit;
+    } catch (PDOException $e) {
+        // 删除失败，可以添加错误处理
+    }
+}
+
 // 获取当前登录用户信息
 $currentUserId = $_SESSION['user_id'];
 $username = $_SESSION['username'];
@@ -67,19 +82,6 @@ try {
 
         <div class="body">
             <div class="main-part">
-                <div class="blog-area">
-                    <form method="post" action="">
-                    	<textarea placeholder="分享您的新鲜事···" rows="5" cols="30"
-                    	name="contentInput" id="contentInput"></textarea>
-                    	<br/>
-                    	<label for="weibo-picture" class="file-upload-btn">选择图片</label>
-                    	<input type="file" name="weibo-picture" id="weibo-picture"
-                    	accept="image/jpeg,image/png,image/gif" onchange="displayFileName(this)"/>
-                    	<span class="file-name" id="file-name"></span>
-                    	<input type="submit" name="content-submit" id="content-submit" value="一键分享">
-                    </form>
-                </div>
-
                 <div class="blog-display">
                     <p>您的往期发布</p>
                     <?php if (isset($error)): ?>
@@ -100,6 +102,12 @@ try {
                                 <img src="<?php echo htmlspecialchars($post['image']); ?>" alt="微博配图">
                             </div>
                             <?php endif; ?>
+                            <div style="margin-top: 10px;">
+                                <form action="" method="post" style="display: inline;">
+                                    <input type="hidden" name="delete_post_id" value="<?php echo $post['id']; ?>">
+                                    <button type="submit" class="admin-btn btn-danger" onclick="return confirm('确定要删除这条微博吗？');">删除</button>
+                                </form>
+                            </div>
                         </div>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -138,11 +146,5 @@ try {
             本页面为自制微博前端演示，后端功能待后续开发
     </div>
 
-    <script>
-        function displayFileName(input) {
-            const fileName = input.files[0] ? input.files[0].name : '';
-            document.getElementById('file-name').textContent = fileName;
-        }
-    </script>
 </body>
 </html>
