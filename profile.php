@@ -15,6 +15,10 @@ if (isset($_GET['logout']) && $_GET['logout'] == '1') {
     exit;
 }
 
+// 获取当前登录用户信息
+$currentUserId = $_SESSION['user_id'];
+$username = $_SESSION['username'];
+
 // 处理删除帖子请求
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_post_id'])) {
     $post_id = (int)$_POST['delete_post_id'];
@@ -29,10 +33,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_post_id'])) {
         // 删除失败，可以添加错误处理
     }
 }
-
-// 获取当前登录用户信息
-$currentUserId = $_SESSION['user_id'];
-$username = $_SESSION['username'];
 
 // 从数据库查询用户的往期发布
 try {
@@ -139,15 +139,13 @@ try {
                                     <textarea placeholder="写下你的评论..."></textarea>
                                     <button class="comment-submit-btn" onclick="submitComment(this)">发表评论</button>
                                 </div>
+                                <div style="margin-top: 10px;">
+                                    <form action="" method="post" style="display: inline;">
+                                        <input type="hidden" name="delete_post_id" value="<?php echo $post['id']; ?>">
+                                        <button type="submit" class="delete-button" onclick="return confirm('确定要删除这条微博吗？');">删除</button>
+                                    </form>
+                                </div>
                             </div>
-                            <?php endif; ?>
-                            <div style="margin-top: 10px;">
-                                <form action="" method="post" style="display: inline;">
-                                    <input type="hidden" name="delete_post_id" value="<?php echo $post['id']; ?>">
-                                    <button type="submit" class="admin-btn btn-danger" onclick="return confirm('确定要删除这条微博吗？');">删除</button>
-                                </form>
-                            </div>
-                        </div>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
