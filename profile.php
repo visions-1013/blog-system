@@ -45,33 +45,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_post_id'])) {
     }
 }
 
-// 从数据库查询用户的往期发布
+// 从数据库查询用户的往期发布（包含点赞状态）
 try {
-    $sql = "SELECT p.*, u.username 
+    $sql = "SELECT p.*, u.username,
+            CASE WHEN l.id IS NOT NULL THEN 1 ELSE 0 END as is_liked
             FROM posts p 
             LEFT JOIN users u ON p.user_id = u.id 
+            LEFT JOIN likes l ON p.id = l.post_id AND l.user_id = ?
             WHERE p.user_id = ? 
             ORDER BY p.created_at DESC 
             LIMIT 20";
     $stmt = $pdo->prepare($sql);
-    $stmt->execute([$currentUserId]);
+    $stmt->execute([$currentUserId, $currentUserId]);
     $posts = $stmt->fetchAll();
-    
-    // 为每个帖子查询评论
-    foreach ($posts as &$post) {
-        try {
-            $sql = "SELECT c.*, u.username 
-                    FROM comments c 
-                    LEFT JOIN users u ON c.user_id = u.id 
-                    WHERE c.post_id = ? 
-                    ORDER BY c.created_at DESC";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([$post['id']]);
-            $post['comments'] = $stmt->fetchAll();
-        } catch (PDOException $e) {
-            $post['comments'] = [];
-        }
-    }
 } catch (PDOException $e) {
     $posts = [];
     $error = '获取发布内容失败';
@@ -83,6 +69,8 @@ try {
     <meta charset="utf-8">
     <title>个人中心 - <?php echo htmlspecialchars($username); ?></title>
     <link rel="stylesheet" href="static\css\profile_style.css">
+    <script src="static/js/ajax_req.js"></script>
+    <script src="static/js/main.js"></script>
     <style>
         /* 用户头像显示样式 */
         .user-avatar-container {
@@ -159,7 +147,7 @@ try {
                         </div>
                     <?php else: ?>
                         <?php foreach ($posts as $post): ?>
-                            <div class="blog">
+                            <div class="blog" data-post-id="<?php echo $post['id']; ?>">
                                 <div class="blog-content"><?php echo nl2br(htmlspecialchars($post['content'])); ?></div>
                                 <?php if (!empty($post['image'])): ?>
                                 <div class="blog-picture">
@@ -169,9 +157,11 @@ try {
                                 <div class="post-time">
                                     <small><?php echo date('Y-m-d H:i:s', strtotime($post['created_at'])); ?></small>
                                 </div>
-                                <button class="like-button" onclick="toggleLike(this)">
+                                <button class="like-button" 
+                                        data-liked="<?php echo $post['is_liked'] ? 'true' : 'false'; ?>"
+                                        onclick="toggleLike(this)">
                                     <span class="like-icon"></span>
-                                    <span>点赞</span>
+                                    <span><?php echo $post['is_liked'] ? '已赞' : '点赞'; ?></span>
                                     <span class="like-count"><?php echo $post['likes_count']; ?></span>
                                 </button>
                                 <button class="comment-button" onclick="toggleComment(this)">
@@ -228,100 +218,5 @@ try {
             开发者团队：章航渝、章晨阳、周楷涵<br>
             本页面为自制微博前端演示，后端功能待后续开发
     </div>
-
-    <script>
-        // 点赞功能实现
-        function toggleLike(button) {
-            const likeCountSpan = button.querySelector('.like-count');
-            let likeCount = parseInt(likeCountSpan.textContent);
-            
-            // 添加动画类
-            button.classList.add('animating');
-            
-            // 切换点赞状态
-            if (button.classList.contains('liked')) {
-                // 取消点赞
-                button.classList.remove('liked');
-                likeCount--;
-                button.querySelector('span:nth-child(2)').textContent = '点赞';
-            } else {
-                // 点赞
-                button.classList.add('liked');
-                likeCount++;
-                button.querySelector('span:nth-child(2)').textContent = '已赞';
-            }
-            
-            // 更新点赞数
-            likeCountSpan.textContent = likeCount;
-            
-            // 移除动画类，以便下次点击可以重新添加
-            setTimeout(() => {
-                button.classList.remove('animating');
-            }, 400);
-        }
-        
-        // 页面加载时为每个点赞按钮添加随机初始点赞数
-        document.addEventListener('DOMContentLoaded', function() {
-            const likeButtons = document.querySelectorAll('.like-button');
-            likeButtons.forEach(button => {
-                // 生成1-100之间的随机点赞数
-                const randomLikes = Math.floor(Math.random() * 100) + 1;
-                const likeCountSpan = button.querySelector('.like-count');
-                likeCountSpan.textContent = randomLikes;
-                
-                // 随机设置一些按钮为已点赞状态
-                if (Math.random() > 0.7) {
-                    button.classList.add('liked');
-                    button.querySelector('span:nth-child(2)').textContent = '已赞';
-                }
-            });
-        });
-        
-        // 评论功能实现
-        function toggleComment(button) {
-            const blogDiv = button.closest('.blog');
-            const commentSection = blogDiv.querySelector('.comment-section');
-            const commentInputArea = blogDiv.querySelector('.comment-input-area');
-            
-            // 切换显示/隐藏状态
-            if (commentSection.style.display === 'none' || commentSection.style.display === '') {
-                commentSection.style.display = 'block';
-                commentInputArea.style.display = 'block';
-            } else {
-                commentSection.style.display = 'none';
-                commentInputArea.style.display = 'none';
-            }
-        }
-        
-        // 发表评论功能实现
-        function submitComment(button) {
-            const commentInputArea = button.closest('.comment-input-area');
-            const textarea = commentInputArea.querySelector('textarea');
-            const commentText = textarea.value.trim();
-            
-            if (commentText === '') {
-                alert('请输入评论内容！');
-                return;
-            }
-            
-            // 找到对应的评论区域
-            const blogDiv = commentInputArea.closest('.blog');
-            const commentSection = blogDiv.querySelector('.comment-section');
-            
-            // 创建新评论
-            const newComment = document.createElement('div');
-            newComment.textContent = '当前用户：' + commentText;
-            newComment.style.marginBottom = '8px';
-            
-            // 将新评论添加到评论区域
-            commentSection.appendChild(newComment);
-            
-            // 清空输入框
-            textarea.value = '';
-            
-            // 确保评论区域可见
-            commentSection.style.display = 'block';
-        }
-    </script>
 </body>
 </html>

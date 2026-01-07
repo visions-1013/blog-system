@@ -83,10 +83,10 @@
 * **后端处理**：PHP 检查 `likes` 表。若未点赞则插入记录并 `posts.likes_count + 1`；若已点赞则删除记录并 `-1`。
 * **数据同步**：后端返回最新的点赞数值，前端JS更新页面上的数字显示。
 
-### 3.3 实时字数统计 (JS Interaction)
-* **前端逻辑**：监听输入框的 `input` 或 `keyup` 事件。
-* **计算逻辑**：`剩余字数 = 140 - 当前输入长度`。
-* **交互反馈**：当剩余字数 < 0 时，数字变红，并禁用“发布”按钮 (`disabled = true`)。
+### 3.3 动态发布评论 (AJAX Comment)
+* **前端逻辑**：点击评论按钮展开评论区，通过AJAX加载该微博的评论列表；输入评论内容后，通过AJAX提交。
+* **后端处理**：PHP接收评论数据，写入 `comments` 表，返回新插入评论的 JSON 数据。
+* **DOM操作**：前端接收成功响应后，动态创建并插入新的评论节点到评论区，无需刷新页面。
 
 ---
 
@@ -104,7 +104,8 @@
 ├─ /api                 // AJAX 请求处理接口
 │     action_post.php   // 处理发布
 │     action_like.php   // 处理点赞
-│     action_comment.php// 处理评论
+│     action_comment.php// 处理评论提交
+│     action_get_comments.php // 获取评论列表
 │
 ├─ /config              // 配置目录
 │     db_connect.php    // 数据库连接配置
