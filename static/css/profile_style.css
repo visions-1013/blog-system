@@ -189,6 +189,29 @@
             height: auto; /* 高度随宽度自适应，保持 */
         }
         
+        /* 按钮样式 */
+        .admin-btn{
+            background-color: #3182ce;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background-color 0.2s;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+        .admin-btn:hover{
+            background-color: #2b6cb0;
+        }
+        .btn-danger{
+            background-color: #f56565;
+        }
+        .btn-danger:hover{
+            background-color: #e53e3e;
+        }
+        
         /* 右侧边栏样式 */
         .right-sider h4{
             color: #4a5568;

@@ -60,27 +60,64 @@ if ((int)$_SESSION['role'] !== 1) {
 
 $adminUsername = isset($_SESSION['username']) ? htmlspecialchars($_SESSION['username'], ENT_QUOTES, 'UTF-8') : '管理员';
 
-// 查询所有帖子
+// 处理帖子搜索关键词
+$searchKeyword = '';
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['search'])) {
+    $searchKeyword = trim($_GET['search']);
+}
+
+// 处理用户搜索关键词
+$userSearchKeyword = '';
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['user_search'])) {
+    $userSearchKeyword = trim($_GET['user_search']);
+}
+
+// 查询帖子（带搜索功能）
 $posts = [];
 try {
-    $sql = "SELECT p.*, u.username 
-            FROM posts p 
-            LEFT JOIN users u ON p.user_id = u.id 
-            ORDER BY p.created_at DESC";
-    $stmt = $pdo->query($sql);
+    if (!empty($searchKeyword)) {
+        // 带搜索条件的查询
+        $sql = "SELECT p.*, u.username 
+                FROM posts p 
+                LEFT JOIN users u ON p.user_id = u.id 
+                WHERE p.content LIKE ? OR u.username LIKE ?
+                ORDER BY p.created_at DESC";
+        $stmt = $pdo->prepare($sql);
+        $searchTerm = "%{$searchKeyword}%";
+        $stmt->execute([$searchTerm, $searchTerm]);
+    } else {
+        // 查询所有帖子
+        $sql = "SELECT p.*, u.username 
+                FROM posts p 
+                LEFT JOIN users u ON p.user_id = u.id 
+                ORDER BY p.created_at DESC";
+        $stmt = $pdo->query($sql);
+    }
     $posts = $stmt->fetchAll();
 } catch (PDOException $e) {
     // 查询失败，$posts为空数组
     $posts = [];
 }
 
-// 查询所有用户
+// 查询用户（带搜索功能）
 $users = [];
 try {
-    $sql = "SELECT id, username, role, created_at 
-            FROM users 
-            ORDER BY id DESC";
-    $stmt = $pdo->query($sql);
+    if (!empty($userSearchKeyword)) {
+        // 带搜索条件的查询（按用户名搜索）
+        $sql = "SELECT id, username, role, created_at 
+                FROM users 
+                WHERE username LIKE ?
+                ORDER BY id DESC";
+        $stmt = $pdo->prepare($sql);
+        $searchTerm = "%{$userSearchKeyword}%";
+        $stmt->execute([$searchTerm]);
+    } else {
+        // 查询所有用户
+        $sql = "SELECT id, username, role, created_at 
+                FROM users 
+                ORDER BY id DESC";
+        $stmt = $pdo->query($sql);
+    }
     $users = $stmt->fetchAll();
 } catch (PDOException $e) {
     // 查询失败，$users为空数组
@@ -124,9 +161,22 @@ try {
                     
                     <!-- 搜索区域 -->
                     <div class="search-area">
-                        <input type="text" class="search-input" id="searchInput" placeholder="搜索用户名或内容...">
-                        <button class="admin-btn" onclick="search()">搜索</button>
+                        <form action="" method="get" style="display: flex; gap: 10px; align-items: center;">
+                            <input type="text" class="search-input" name="search" 
+                                   id="searchInput" placeholder="搜索用户名或内容..."
+                                   value="<?php echo htmlspecialchars($searchKeyword); ?>">
+                            <button type="submit" class="admin-btn">搜索</button>
+                            <?php if (!empty($searchKeyword)): ?>
+                                <a href="admin.php" class="admin-btn" style="text-decoration: none; font-size: 12px; padding: 6px 12px;">清除</a>
+                            <?php endif; ?>
+                        </form>
                     </div>
+                    
+                    <?php if (!empty($searchKeyword)): ?>
+                        <div style="margin-bottom: 10px; font-size: 13px; color: #718096;">
+                            搜索结果（关键词："<?php echo htmlspecialchars($searchKeyword); ?>"）：共找到 <?php echo count($posts); ?> 条记录
+                        </div>
+                    <?php endif; ?>
                     
                     <?php if (empty($posts)): ?>
                         <div class="data-card" style="text-align: center; padding: 20px;">
@@ -167,9 +217,22 @@ try {
                     
                     <!-- 用户搜索 -->
                     <div class="search-area">
-                        <input type="text" class="search-input" id="userSearch" placeholder="搜索用户名...">
-                        <button class="admin-btn" onclick="searchUser()">搜索</button>
+                        <form action="" method="get" style="display: flex; gap: 10px; align-items: center;">
+                            <input type="text" class="search-input" name="user_search" 
+                                   id="userSearch" placeholder="搜索用户名..."
+                                   value="<?php echo htmlspecialchars($userSearchKeyword); ?>">
+                            <button type="submit" class="admin-btn">搜索</button>
+                            <?php if (!empty($userSearchKeyword)): ?>
+                                <a href="admin.php" class="admin-btn" style="text-decoration: none; font-size: 12px; padding: 6px 12px;">清除</a>
+                            <?php endif; ?>
+                        </form>
                     </div>
+                    
+                    <?php if (!empty($userSearchKeyword)): ?>
+                        <div style="margin-bottom: 10px; font-size: 13px; color: #718096;">
+                            搜索结果（关键词："<?php echo htmlspecialchars($userSearchKeyword); ?>"）：共找到 <?php echo count($users); ?> 个用户
+                        </div>
+                    <?php endif; ?>
                     
                     <?php if (empty($users)): ?>
                         <div class="data-card" style="text-align: center; padding: 20px;">
@@ -247,19 +310,7 @@ try {
             }
         }
         
-        // 搜索功能（预留）
-        function search() {
-            var searchValue = document.getElementById('searchInput').value;
-            // 可以在这里添加搜索逻辑
-            console.log('搜索内容：' + searchValue);
-        }
         
-        // 用户搜索功能（预留）
-        function searchUser() {
-            var searchValue = document.getElementById('userSearch').value;
-            // 可以在这里添加用户搜索逻辑
-            console.log('搜索用户：' + searchValue);
-        }
     </script>
 </body>
 </html>
