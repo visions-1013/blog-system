@@ -136,10 +136,23 @@ try {
 						<div class="user-info">
 							<span class="username-display"><?php echo htmlspecialchars($_SESSION['username']); ?></span>
 						</div>
+						
+						<!-- 用户头像显示 -->
+						<div class="user-avatar-container">
+							<form action="profile.php" method="post" enctype="multipart/form-data">
+								<input type="file" name="avatar" id="avatarUpload" 
+								       accept="image/*" style="display:none;" onchange="this.form.submit()"/>
+								<img src="static/img/<?php echo htmlspecialchars($_SESSION['avatar'] ?? 'default.png'); ?>" 
+								     alt="用户头像" 
+								     class="user-avatar" 
+								     onclick="document.getElementById('avatarUpload').click()"/>
+							</form>
+						</div>
 						<nav class="user-nav">
 							<a href="profile.php">个人中心</a>
 							<a href="?action=logout">退出</a>
 						</nav>
+
 					<?php else: ?>
 						<!-- 未登录状态 -->
 						<nav class="auth-nav">
@@ -166,6 +179,7 @@ try {
 							<textarea placeholder="分享您的新鲜事···" rows="5" cols="30"
 							name="contentInput" id="contentInput"></textarea>
 							<br/>
+							<div class="errInfo" id="errInfo">&nbsp;&nbsp;</div>
 							<!-- 优化后的文件上传组件 -->
 							<div class="file-upload-container">
 								<label for="weibo-picture" class="file-upload-button">
@@ -236,6 +250,18 @@ try {
 		</div>
 		
 		<script>
+			let contentInput = document.getElementById('contentInput');
+			contentInput.addEventListener('input', function() {
+				let content = contentInput.value;
+				let errInfo = document.getElementById('errInfo');
+				
+				if (content.length > 140) {
+					errInfo.textContent = '字数超出限制！请精简您的内容。';
+					errInfo.style.color = 'red';
+				} else {
+					errInfo.textContent = '';
+				}
+			})
 			// 点赞功能实现
 			function toggleLike(button) {
 				const likeCountSpan = button.querySelector('.like-count');
