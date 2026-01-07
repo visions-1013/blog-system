@@ -19,6 +19,17 @@ if (isset($_GET['logout']) && $_GET['logout'] == '1') {
 $currentUserId = $_SESSION['user_id'];
 $username = $_SESSION['username'];
 
+// 获取用户头像信息
+try {
+    $sql = "SELECT avatar FROM users WHERE id = ?";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$currentUserId]);
+    $user = $stmt->fetch();
+    $avatar = $user['avatar'] ?? 'default.png';
+} catch (PDOException $e) {
+    $avatar = 'default.png';
+}
+
 // 处理删除帖子请求
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_post_id'])) {
     $post_id = (int)$_POST['delete_post_id'];
@@ -72,6 +83,30 @@ try {
     <meta charset="utf-8">
     <title>个人中心 - <?php echo htmlspecialchars($username); ?></title>
     <link rel="stylesheet" href="static\css\profile_style.css">
+    <style>
+        /* 用户头像显示样式 */
+        .user-avatar-container {
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 20px;
+            cursor: pointer;
+        }
+        
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #e8f4f8;
+            vertical-align: middle;
+            transition: transform 0.2s ease;
+        }
+        
+        .user-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 8px rgba(66, 217, 232, 0.3);
+        }
+    </style>
 </head>
 <body>
     <!-- 主容器 -->
@@ -82,7 +117,18 @@ try {
             </div>
             <div class="head-right">
                 <h3>XX微博-个人中心</h3>
-                <br/><br/><br/>
+                <div class="user-avatar-container">
+                    <form action="profile.php" method="post" enctype="multipart/form-data">
+                        <input type="file" name="avatar" id="avatarUpload" 
+                               accept="image/*" style="display:none;" onchange="this.form.submit()"/>
+                        <img src="static/img/<?php echo htmlspecialchars($avatar); ?>" 
+                             alt="用户头像" 
+                             class="user-avatar" 
+                             id="currentAvatar"
+                             onclick="document.getElementById('avatarUpload').click()"/>
+                    </form>
+                </div>
+                <br/><br/>
                 <a href="?logout=1" style="color: #666; text-decoration: none;">退出登录</a>
                 <a href="index.php" style="color: #666; text-decoration: none; margin-left: 20px;">返回主页</a>
             </div>

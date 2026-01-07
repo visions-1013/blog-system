@@ -103,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                        value="<?php echo htmlspecialchars($oldUsername, ENT_QUOTES, 'UTF-8'); ?>"/>
                 <p id="errInfo1" class="error-message">&nbsp;</p>
             </div>
-
+            
             <div class="form-group">
                 <label for="password">登录密码：</label>
                 <input type="password" name="password" id="password" 
@@ -229,6 +229,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
             return true;
         }
 	}
+	function handleDefaultAvatar() {
+  const preview = document.querySelector('.avatar-preview');
+  preview.innerHTML = `
+    <div class="default-avatar">
+      momo╰(￣ω￣ｏ)
+    </div>
+  `;
+}
+
+// 初始化显示默认头像
+handleDefaultAvatar();
+
+document.getElementById('avatarUpload').addEventListener('change', function(e) {
+  const files = e.target.files;
+  const preview = document.querySelector('.avatar-preview');
+  
+  // 如果没有选择文件，显示默认头像
+  if (!files || files.length === 0) {
+    handleDefaultAvatar();
+    return;
+  }
+  
+  preview.innerHTML = '';
+  
+  // 只处理第一个文件（头像通常只需要一个）
+  const file = files[0];
+  
+  if (file.type.startsWith('image/')) {
+    const reader = new FileReader();
+    
+    reader.onload = function(event) {
+      const previewItem = document.createElement('div');
+      previewItem.className = 'preview-item';
+      
+      const img = document.createElement('img');
+      img.src = event.target.result;
+      img.alt = '用户头像';
+      
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'remove-btn';
+      removeBtn.innerHTML = '×';
+      removeBtn.onclick = function() {
+        previewItem.remove();
+        handleDefaultAvatar();
+        document.getElementById('avatarUpload').value = '';
+      };
+      
+      previewItem.appendChild(img);
+      previewItem.appendChild(removeBtn);
+      preview.appendChild(previewItem);
+    };
+    
+    reader.readAsDataURL(file);
+  }
+});
 	function resetAll(){
 		errInfo.textContent="";
 		errInfo1.textContent="";

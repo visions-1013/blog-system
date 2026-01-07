@@ -281,7 +281,7 @@
 				vertical-align: middle;
 			}
 			
-			.file-upload-icon {
+		.file-upload-icon {
 				display: inline-block;
 				width: 14px;
 				height: 14px;
@@ -291,6 +291,29 @@
 				background-position: center;
 				background-size: contain;
 				vertical-align: text-bottom;
+			}
+			
+			/* 用户头像显示样式 */
+			.user-avatar-container {
+				display: block;
+				margin-top: 10px;
+				text-align: right;
+			}
+			
+			.user-avatar {
+				width: 60px;
+				height: 60px;
+				border-radius: 50%;
+				object-fit: cover;
+				border: 2px solid #e8f4f8;
+				vertical-align: middle;
+				cursor: pointer;
+				transition: transform 0.2s ease;
+			}
+			
+			.user-avatar:hover {
+				transform: scale(1.05);
+				box-shadow: 0 0 0 8px rgba(66, 217, 232, 0.3);
 			}
 			
 			/* 评论区域样式 */
