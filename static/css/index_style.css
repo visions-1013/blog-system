@@ -119,11 +119,34 @@
 				background-color: #fefefe;
 			}
 			/* 用户名和内容文字配色调整 */
+			.post-user {
+				display: flex;
+				align-items: center;
+				margin-bottom: 8px;
+			}
+			
+			.post-user-avatar {
+				display: inline-block;
+				width: 50px;
+				height: 50px;
+				border-radius: 50%;
+				object-fit: cover;
+				border: 2px solid #e8f4f8;
+				vertical-align: middle;
+				margin-right: 12px;
+				cursor: pointer;
+				transition: transform 0.2s ease;
+			}
+			
+			.post-user-avatar:hover {
+				transform: scale(1.05);
+				box-shadow: 0 0 0 8px rgba(66, 217, 232, 0.3);
+			}
+			
 			.username{
 				color: #2d3748;
 				font-weight: 600;
 				font-size: 15px;
-				margin-bottom: 6px;
 				text-align: left;
 			}
 			.blog-content{

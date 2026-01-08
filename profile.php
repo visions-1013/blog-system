@@ -30,6 +30,59 @@ try {
     $avatar = 'default.png';
 }
 
+// 处理头像上传请求
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
+    $file = $_FILES['avatar'];
+    $upload_dir = 'static/img/';
+    
+    // 检查目录是否存在，不存在则创建
+    if (!file_exists($upload_dir)) {
+        mkdir($upload_dir, 0777, true);
+    }
+    
+    $file_ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    
+    // 验证文件类型
+    $allowed_types = ['jpg', 'jpeg', 'png', 'gif'];
+    if (!in_array($file_ext, $allowed_types)) {
+        echo "<script>alert('只允许上传 JPG、JPEG、PNG、GIF 格式的图片！'); history.back();</script>";
+        exit;
+    }
+    
+    // 验证文件大小（限制为2MB）
+    if ($file['size'] > 2 * 1024 * 1024) {
+        echo "<script>alert('图片大小不能超过2MB！'); history.back();</script>";
+        exit;
+    }
+    
+    // 生成唯一文件名
+    $new_filename = 'avatar_' . $currentUserId . '_' . time() . '.' . $file_ext;
+    $upload_path = $upload_dir . $new_filename;
+    
+    // 移动上传文件
+    if (move_uploaded_file($file['tmp_name'], $upload_path)) {
+        try {
+            // 更新数据库
+            $sql = "UPDATE users SET avatar = ? WHERE id = ?";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$new_filename, $currentUserId]);
+            
+            // 更新session
+            $_SESSION['avatar'] = $new_filename;
+            
+            // 上传成功，刷新页面
+            header('Location: profile.php');
+            exit;
+        } catch (PDOException $e) {
+            echo "<script>alert('更新头像失败：" . $e->getMessage() . "'); history.back();</script>";
+            exit;
+        }
+    } else {
+        echo "<script>alert('图片上传失败，请重试！'); history.back();</script>";
+        exit;
+    }
+}
+
 // 处理删除帖子请求
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_post_id'])) {
     $post_id = (int)$_POST['delete_post_id'];
@@ -45,9 +98,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_post_id'])) {
     }
 }
 
-// 从数据库查询用户的往期发布（包含点赞状态）
+// 从数据库查询用户的往期发布（包含点赞状态和头像）
 try {
-    $sql = "SELECT p.*, u.username,
+    $sql = "SELECT p.*, u.username, u.avatar,
             CASE WHEN l.id IS NOT NULL THEN 1 ELSE 0 END as is_liked
             FROM posts p 
             LEFT JOIN users u ON p.user_id = u.id 
@@ -148,6 +201,12 @@ try {
                     <?php else: ?>
                         <?php foreach ($posts as $post): ?>
                             <div class="blog" data-post-id="<?php echo $post['id']; ?>">
+                                <div class="post-user">
+                                    <img src="static/img/<?php echo htmlspecialchars($post['avatar'] ?? 'default.png'); ?>" 
+                                         class="post-user-avatar" 
+                                         alt="<?php echo htmlspecialchars($post['username']); ?>的头像">
+                                    <div class="username"><?php echo htmlspecialchars($post['username']); ?></div>
+                                </div>
                                 <div class="blog-content"><?php echo nl2br(htmlspecialchars($post['content'])); ?></div>
                                 <?php if (!empty($post['image'])): ?>
                                 <div class="blog-picture">

@@ -152,9 +152,14 @@ function createPostElement(post) {
     blogDiv.className = 'blog';
     blogDiv.setAttribute('data-post-id', post.id);
     
-    // 构建HTML
+    // 构建HTML - 包含头像和用户名
     let html = `
-        <div class="username">${escapeHtml(post.username)}</div>
+        <div class="post-user">
+            <img src="static/img/${escapeHtml(post.avatar || 'default.png')}" 
+                 class="post-user-avatar" 
+                 alt="${escapeHtml(post.username)}的头像">
+            <div class="username">${escapeHtml(post.username)}</div>
+        </div>
         <div class="blog-content">${escapeHtml(post.content).replace(/\n/g, '<br>')}</div>
     `;
     

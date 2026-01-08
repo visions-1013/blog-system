@@ -14,8 +14,8 @@ if (!empty($search_keyword)) {
         $current_user_id = $is_logged_in ? $_SESSION['user_id'] : 0;
         
         if ($is_logged_in) {
-            // 已登录：查询点赞状态
-            $sql = "SELECT p.*, u.username,
+            // 已登录：查询点赞状态和头像
+            $sql = "SELECT p.*, u.username, u.avatar,
                     CASE WHEN l.id IS NOT NULL THEN 1 ELSE 0 END as is_liked
                     FROM posts p 
                     LEFT JOIN users u ON p.user_id = u.id 
@@ -26,8 +26,8 @@ if (!empty($search_keyword)) {
             $keyword = "%$search_keyword%";
             $stmt->execute([$current_user_id, $keyword, $keyword]);
         } else {
-            // 未登录：不查询点赞状态
-            $sql = "SELECT p.*, u.username, 0 as is_liked
+            // 未登录：不查询点赞状态，但查询头像
+            $sql = "SELECT p.*, u.username, u.avatar, 0 as is_liked
                     FROM posts p 
                     LEFT JOIN users u ON p.user_id = u.id 
                     WHERE p.content LIKE ? OR u.username LIKE ?
@@ -83,7 +83,12 @@ if (!empty($search_keyword)) {
                 
                 <?php foreach ($posts as $post): ?>
                     <div class="blog" data-post-id="<?php echo $post['id']; ?>">
-                        <div class="username"><?php echo htmlspecialchars($post['username']); ?></div>
+                        <div class="post-user">
+                            <img src="static/img/<?php echo htmlspecialchars($post['avatar'] ?? 'default.png'); ?>" 
+                                 class="post-user-avatar" 
+                                 alt="<?php echo htmlspecialchars($post['username']); ?>的头像">
+                            <div class="username"><?php echo htmlspecialchars($post['username']); ?></div>
+                        </div>
                         <div class="blog-content"><?php echo nl2br(htmlspecialchars($post['content'])); ?></div>
                         <?php if (!empty($post['image'])): ?>
                         <div class="blog-picture">

@@ -26,6 +26,59 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
     exit;
 }
 
+// 处理头像上传请求
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
+    $file = $_FILES['avatar'];
+    $upload_dir = 'static/img/';
+    
+    // 检查目录是否存在，不存在则创建
+    if (!file_exists($upload_dir)) {
+        mkdir($upload_dir, 0777, true);
+    }
+    
+    $file_ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    
+    // 验证文件类型
+    $allowed_types = ['jpg', 'jpeg', 'png', 'gif'];
+    if (!in_array($file_ext, $allowed_types)) {
+        echo "<script>alert('只允许上传 JPG、JPEG、PNG、GIF 格式的图片！'); history.back();</script>";
+        exit;
+    }
+    
+    // 验证文件大小（限制为2MB）
+    if ($file['size'] > 2 * 1024 * 1024) {
+        echo "<script>alert('图片大小不能超过2MB！'); history.back();</script>";
+        exit;
+    }
+    
+    // 生成唯一文件名
+    $new_filename = 'avatar_' . $current_user . '_' . time() . '.' . $file_ext;
+    $upload_path = $upload_dir . $new_filename;
+    
+    // 移动上传文件
+    if (move_uploaded_file($file['tmp_name'], $upload_path)) {
+        try {
+            // 更新数据库
+            $sql = "UPDATE users SET avatar = ? WHERE id = ?";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$new_filename, $current_user]);
+            
+            // 更新session
+            $_SESSION['avatar'] = $new_filename;
+            
+            // 上传成功，刷新页面
+            header('Location: index.php');
+            exit;
+        } catch (PDOException $e) {
+            echo "<script>alert('更新头像失败：" . $e->getMessage() . "'); history.back();</script>";
+            exit;
+        }
+    } else {
+        echo "<script>alert('图片上传失败，请重试！'); history.back();</script>";
+        exit;
+    }
+}
+
 // 处理微博发布
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['content-submit'])) {
     // 验证用户登录
@@ -99,12 +152,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['content-submit'])) {
 
 
 
-// 查询微博列表（包含当前用户的点赞状态）
+// 查询微博列表（包含当前用户的点赞状态和头像）
 $posts = [];
 try {
     if ($is_logged_in) {
         // 已登录：查询点赞状态
-        $sql = "SELECT p.*, u.username,
+        $sql = "SELECT p.*, u.username, u.avatar,
                 CASE WHEN l.id IS NOT NULL THEN 1 ELSE 0 END as is_liked
                 FROM posts p 
                 LEFT JOIN users u ON p.user_id = u.id 
@@ -114,7 +167,7 @@ try {
         $stmt->execute([$current_user]);
     } else {
         // 未登录：不查询点赞状态
-        $sql = "SELECT p.*, u.username, 0 as is_liked
+        $sql = "SELECT p.*, u.username, u.avatar, 0 as is_liked
                 FROM posts p 
                 LEFT JOIN users u ON p.user_id = u.id 
                 ORDER BY p.created_at DESC";
@@ -154,7 +207,7 @@ try {
 						
 						<!-- 用户头像显示 -->
 						<div class="user-avatar-container">
-							<form action="profile.php" method="post" enctype="multipart/form-data">
+							<form action="" method="post" enctype="multipart/form-data">
 								<input type="file" name="avatar" id="avatarUpload" 
 								       accept="image/*" style="display:none;" onchange="this.form.submit()"/>
 								<img src="static/img/<?php echo htmlspecialchars($_SESSION['avatar'] ?? 'default.png'); ?>" 
@@ -215,10 +268,15 @@ try {
 								<p>暂无微博，快来发布第一条吧！</p>
 							</div>
 						<?php else: ?>
-							<?php foreach ($posts as $post): ?>
-								<div class="blog" data-post-id="<?php echo $post['id']; ?>">
-									<div class="username"><?php echo htmlspecialchars($post['username']); ?></div>
-									<div class="blog-content"><?php echo nl2br(htmlspecialchars($post['content'])); ?></div>
+                        <?php foreach ($posts as $post): ?>
+                                <div class="blog" data-post-id="<?php echo $post['id']; ?>">
+                                    <div class="post-user">
+                                        <img src="static/img/<?php echo htmlspecialchars($post['avatar'] ?? 'default.png'); ?>" 
+                                             class="post-user-avatar" 
+                                             alt="<?php echo htmlspecialchars($post['username']); ?>的头像">
+                                        <div class="username"><?php echo htmlspecialchars($post['username']); ?></div>
+                                    </div>
+                                    <div class="blog-content"><?php echo nl2br(htmlspecialchars($post['content'])); ?></div>
 									<?php if (!empty($post['image'])): ?>
 									<div class="blog-picture">
 										<img src="<?php echo htmlspecialchars($post['image']); ?>" alt="微博配图">

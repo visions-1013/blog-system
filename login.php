@@ -124,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="err-container">
                 <div id="errInfo" class="err"></div>
             </div>
-            <div class="waytoregister"><a href="register.php" target="_blank">没有账号？前往注册！</a></div>
+            <div class="waytoregister"><a href="register.php" target="_self">没有账号？前往注册！</a></div>
         </form>
     </div>
 
