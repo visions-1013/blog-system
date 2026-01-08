@@ -41,13 +41,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['avatar']) && $_FILES
     // 验证文件类型
     $allowed_types = ['jpg', 'jpeg', 'png', 'gif'];
     if (!in_array($file_ext, $allowed_types)) {
-        echo "<script>alert('只允许上传 JPG、JPEG、PNG、GIF 格式的图片！'); history.back();</script>";
+        $_SESSION['error_message'] = '只允许上传 JPG、JPEG、PNG、GIF 格式的图片！';
+        header('Location: index.php');
         exit;
     }
     
     // 验证文件大小（限制为2MB）
     if ($file['size'] > 2 * 1024 * 1024) {
-        echo "<script>alert('图片大小不能超过2MB！'); history.back();</script>";
+        $_SESSION['error_message'] = '图片大小不能超过2MB！';
+        header('Location: index.php');
         exit;
     }
     
@@ -66,15 +68,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['avatar']) && $_FILES
             // 更新session
             $_SESSION['avatar'] = $new_filename;
             
-            // 上传成功，刷新页面
+            // 上传成功，设置成功消息并刷新页面
+            $_SESSION['upload_success'] = '头像上传成功！';
             header('Location: index.php');
             exit;
         } catch (PDOException $e) {
-            echo "<script>alert('更新头像失败：" . $e->getMessage() . "'); history.back();</script>";
+            $_SESSION['error_message'] = '更新头像失败：' . $e->getMessage();
+            header('Location: index.php');
             exit;
         }
     } else {
-        echo "<script>alert('图片上传失败，请重试！'); history.back();</script>";
+        $_SESSION['error_message'] = '图片上传失败，请重试！';
+        header('Location: index.php');
         exit;
     }
 }
@@ -83,7 +88,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['avatar']) && $_FILES
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['content-submit'])) {
     // 验证用户登录
     if (!$is_logged_in) {
-        echo "<script>alert('请先登录！'); window.location.href='login.php';</script>";
+        $_SESSION['error_message'] = '请先登录！';
+        header('Location: login.php');
         exit;
     }
     
@@ -92,12 +98,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['content-submit'])) {
     
     // 验证内容
     if (empty($content)) {
-        echo "<script>alert('微博内容不能为空！'); history.back();</script>";
+        $_SESSION['error_message'] = '微博内容不能为空！';
+        header('Location: index.php');
         exit;
     }
     
     // 处理图片上传
     $image_path = null;
+    $uploaded_filename = null;
     if (isset($_FILES['weibo-picture']) && $_FILES['weibo-picture']['error'] === UPLOAD_ERR_OK) {
         $upload_dir = 'static/img/';
         
@@ -108,17 +116,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['content-submit'])) {
         
         $file = $_FILES['weibo-picture'];
         $file_ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $uploaded_filename = $file['name'];
         
         // 验证文件类型
         $allowed_types = ['jpg', 'jpeg', 'png', 'gif'];
         if (!in_array($file_ext, $allowed_types)) {
-            echo "<script>alert('只允许上传 JPG、JPEG、PNG、GIF 格式的图片！'); history.back();</script>";
+            $_SESSION['error_message'] = '只允许上传 JPG、JPEG、PNG、GIF 格式的图片！';
+            header('Location: index.php');
             exit;
         }
         
         // 验证文件大小（限制为5MB）
         if ($file['size'] > 5 * 1024 * 1024) {
-            echo "<script>alert('图片大小不能超过5MB！'); history.back();</script>";
+            $_SESSION['error_message'] = '图片大小不能超过5MB！';
+            header('Location: index.php');
             exit;
         }
         
@@ -130,7 +141,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['content-submit'])) {
         if (move_uploaded_file($file['tmp_name'], $upload_path)) {
             $image_path = $upload_path;
         } else {
-            echo "<script>alert('图片上传失败，请重试！'); history.back();</script>";
+            $_SESSION['error_message'] = '图片上传失败，请重试！';
+            header('Location: index.php');
             exit;
         }
     }
@@ -141,11 +153,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['content-submit'])) {
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$current_user, $content, $image_path]);
         
-        // 发布成功，直接刷新页面，不显示提示
+        // 发布成功，设置成功消息并刷新页面
+        if ($uploaded_filename) {
+            $_SESSION['upload_success'] = '已上传：' . $uploaded_filename;
+        } else {
+            $_SESSION['upload_success'] = '发布成功！';
+        }
         header('Location: index.php');
         exit;
     } catch (PDOException $e) {
-        echo "<script>alert('发布失败：" . $e->getMessage() . "'); history.back();</script>";
+        $_SESSION['error_message'] = '发布失败：' . $e->getMessage();
+        header('Location: index.php');
         exit;
     }
 }
@@ -184,6 +202,7 @@ try {
 	<head>
 		<meta charset="utf-8">
 		<title>XX微博主页面</title>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 		<link rel="stylesheet" href="static\css\index_style.css">
 		<script src="static/js/ajax_req.js"></script>
 		<script src="static/js/main.js"></script>
@@ -207,7 +226,7 @@ try {
 						
 						<!-- 用户头像显示 -->
 						<div class="user-avatar-container">
-							<form action="" method="post" enctype="multipart/form-data">
+							<form action="index.php" method="post" enctype="multipart/form-data">
 								<input type="file" name="avatar" id="avatarUpload" 
 								       accept="image/*" style="display:none;" onchange="this.form.submit()"/>
 								<img src="static/img/<?php echo htmlspecialchars($_SESSION['avatar'] ?? 'default.png'); ?>" 
@@ -236,30 +255,105 @@ try {
 			</div>
 			<div class="body">
 				<div class="left-sider">
-					<p>个人中心</p>
-					<p>特别关注</p>
-					<p>您的好友</p>
-					<p>关于我们(开发者团队)</p>
+					<div class="sider-section">
+						<h4><i class="fa-solid fa-user"></i> 个人中心</h4>
+						<?php if ($is_logged_in): ?>
+							<a href="profile.php" class="nav-link">
+								<i class="fa-solid fa-home"></i> 我的主页
+							</a>
+							<a href="#" class="nav-link">
+								<i class="fa-solid fa-star"></i> 我的收藏
+							</a>
+							<a href="#" class="nav-link">
+								<i class="fa-solid fa-bell"></i> 消息通知
+							</a>
+							<a href="#" class="nav-link">
+								<i class="fa-solid fa-cog"></i> 设置
+							</a>
+						<?php else: ?>
+							<a href="login.php" class="nav-link">
+								<i class="fa-solid fa-sign-in-alt"></i> 立即登录
+							</a>
+							<a href="register.php" class="nav-link">
+								<i class="fa-solid fa-user-plus"></i> 注册账号
+							</a>
+						<?php endif; ?>
+					</div>
+					
+					<div class="sider-section">
+						<h4><i class="fa-solid fa-star"></i> 特别关注</h4>
+						<div class="user-item">
+							<img src="static/img/default.png" alt="">
+							<span>东北御姐</span>
+						</div>
+						<div class="user-item">
+							<img src="static/img/default.png" alt="">
+							<span>宇少将</span>
+						</div>
+						<div class="user-item">
+							<img src="static/img/default.png" alt="">
+							<span>安徽秀才</span>
+						</div>
+					</div>
+					
+					<div class="sider-section">
+						<h4><i class="fa-solid fa-users"></i> 我的好友</h4>
+						<div class="user-item">
+							<img src="static/img/default.png" alt="">
+							<span>杭州小航</span>
+						</div>
+						<div class="user-item">
+							<img src="static/img/default.png" alt="">
+							<span>重庆小渝</span>
+						</div>
+					</div>
 				</div>
 				<div class="main-part">
 				    <div class="blog-area">
-						<form method="post" action="" enctype="multipart/form-data">
-							<textarea placeholder="分享您的新鲜事···" rows="5" cols="30"
-							name="contentInput" id="contentInput"></textarea>
-							<br/>
-							<div class="errInfo" id="errInfo">&nbsp;&nbsp;</div>
-							<!-- 优化后的文件上传组件 -->
-							<div class="file-upload-container">
-								<label for="weibo-picture" class="file-upload-button">
-									<span class="file-upload-icon"></span>
-									选择图片
-								</label>
-								<input type="file" name="weibo-picture" id="weibo-picture"
-								accept="image/jpeg,image/png,image/gif" style="display:none;" onchange="updateFileName(this)"/>
+						<!-- 消息提示区域 -->
+						<?php if (isset($_SESSION['error_message'])): ?>
+							<div class="error-message">
+								<i class="fa-solid fa-circle-exclamation"></i>
+								<?php echo htmlspecialchars($_SESSION['error_message']); ?>
 							</div>
-							<span id="file-name" class="file-name-display">未选择文件</span>
-							&nbsp;
-							<input type="submit" name="content-submit" id="content-submit" value="一键分享">
+							<?php unset($_SESSION['error_message']); ?>
+						<?php endif; ?>
+						
+						<?php if (isset($_SESSION['upload_success'])): ?>
+							<div class="success-message">
+								<i class="fa-solid fa-circle-check"></i>
+								<?php echo htmlspecialchars($_SESSION['upload_success']); ?>
+							</div>
+							<?php unset($_SESSION['upload_success']); ?>
+						<?php endif; ?>
+						
+						<form method="post" action="" enctype="multipart/form-data">
+							<textarea placeholder="分享您的新鲜事···" rows="5"
+							name="contentInput" id="contentInput"></textarea>
+							
+							<!-- 工具栏：图片上传 + 字数统计 + 发布按钮 -->
+							<div class="post-toolbar">
+								<div class="toolbar-left">
+									<!-- 图片上传组件 -->
+									<div class="file-upload-wrapper">
+										<label for="weibo-picture" class="file-upload-button">
+											<i class="fa-solid fa-image"></i>
+											<span class="file-upload-text">添加图片</span>
+										</label>
+										<input type="file" name="weibo-picture" id="weibo-picture"
+										accept="image/jpeg,image/png,image/gif" 
+										style="display:none;" 
+										onchange="updateFileName(this)"/>
+										<span id="file-name" class="file-name-display" style="display: none;"></span>
+									</div>
+									
+									<!-- 字数统计 -->
+									<span id="char-count" class="char-count">0字</span>
+								</div>
+								
+								<!-- 发布按钮 -->
+								<input type="submit" name="content-submit" id="content-submit" value="发布">
+							</div>
 						</form>
 					</div><br/><br/>
 					<div class="blog-display">
@@ -288,12 +382,12 @@ try {
 									<button class="like-button" 
 									        data-liked="<?php echo $post['is_liked'] ? 'true' : 'false'; ?>"
 									        onclick="toggleLike(this)">
-										<span class="like-icon"></span>
+										<i class="fa-solid fa-thumbs-up"></i>
 										<span><?php echo $post['is_liked'] ? '已赞' : '点赞'; ?></span>
 										<span class="like-count"><?php echo $post['likes_count']; ?></span>
 									</button>
 									<button class="comment-button" onclick="toggleComment(this)">
-										<span class="comment-icon">💬</span>
+										<i class="fa-regular fa-comment"></i>
 										<span>评论</span>
 									</button>
 									<div class="comment-section" style="display: none;">
@@ -309,12 +403,47 @@ try {
 					</div>
 				</div>
 				<div class="right-sider">
-					<p>热点新闻</p>
-					<div class="hot-new">1.震惊！我们杭州又赢了！！</div>
-					<div class="hot-new">2.小猪佩奇居然是我们杭州人？就在刚刚·······</div>
-					<div class="hot-new">3.一杭州小伙研制出了利器，重大突破！</div>
-					<div class="hot-new">4.中国5：德国0 好消息传来----</div>
-					<div >
+					<div class="sider-section">
+						<h4><i class="fa-solid fa-fire"></i> 热门话题</h4>
+						<a href="#" class="topic-tag">#生活分享</a>
+						<a href="#" class="topic-tag">#心情日记</a>
+						<a href="#" class="topic-tag">#美食探店</a>
+						<a href="#" class="topic-tag">#旅行记录</a>
+						<a href="#" class="topic-tag">#学习笔记</a>
+					</div>
+					
+					<div class="sider-section">
+						<h4><i class="fa-solid fa-thumbs-up"></i> 推荐关注</h4>
+						<div class="user-item">
+							<img src="static/img/default.png" alt="">
+							<span>科技前沿</span>
+						</div>
+						<div class="user-item">
+							<img src="static/img/default.png" alt="">
+							<span>美食探店</span>
+						</div>
+						<div class="user-item">
+							<img src="static/img/default.png" alt="">
+							<span>旅行日记</span>
+						</div>
+						<div class="user-item">
+							<img src="static/img/default.png" alt="">
+							<span>学习分享</span>
+						</div>
+					</div>
+					
+					<div class="sider-section">
+						<h4><i class="fa-solid fa-chart-line"></i> 热门微博</h4>
+						<div class="hot-post-summary">
+							1. 震惊！我们杭州又赢了！！
+						</div>
+						<div class="hot-post-summary">
+							2. 小猪佩奇居然是我们杭州人？
+						</div>
+						<div class="hot-post-summary">
+							3. 杭州小伙研制出利器
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -324,4 +453,5 @@ try {
 			    本页面为自制微博前端演示，后端功能待后续开发
 		</div>
 	</body>
+</html>
 </html>

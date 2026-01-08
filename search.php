@@ -48,6 +48,7 @@ if (!empty($search_keyword)) {
     <head>
         <title>搜索结果</title>
         <meta charset="utf-8">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         <link rel="stylesheet" href="static\css\search_style.css">
         <script src="static/js/ajax_req.js"></script>
         <script src="static/js/main.js"></script>
@@ -98,12 +99,12 @@ if (!empty($search_keyword)) {
                         <button class="like-button" 
                                 data-liked="<?php echo $post['is_liked'] ? 'true' : 'false'; ?>"
                                 onclick="toggleLike(this)">
-                            <span class="like-icon"></span>
+                            <i class="fa-solid fa-thumbs-up"></i>
                             <span><?php echo $post['is_liked'] ? '已赞' : '点赞'; ?></span>
                             <span class="like-count"><?php echo $post['likes_count']; ?></span>
                         </button>
                         <button class="comment-button" onclick="toggleComment(this)">
-                            <span class="comment-icon">💬</span>
+                            <i class="fa-regular fa-comment"></i>
                             <span>评论</span>
                         </button>
                         <div class="comment-section" style="display: none;">
@@ -120,11 +121,29 @@ if (!empty($search_keyword)) {
             </div>
 
             <div class="right-sider">
-            <h4>热点内容</h4>
-            <p>马杜罗的牺牲</p>
-            <p>罗杰的死</p>
-            <p>皇帝的雨伞</p>
-            <p>小猫的重生</p>
+                <div class="sider-section">
+                    <h4><i class="fa-solid fa-fire"></i> 热门话题</h4>
+                    <a href="#" class="topic-tag">#杭州新闻</a>
+                    <a href="#" class="topic-tag">#生活分享</a>
+                    <a href="#" class="topic-tag">#心情日记</a>
+                    <a href="#" class="topic-tag">#美食探店</a>
+                </div>
+                
+                <div class="sider-section">
+                    <h4><i class="fa-solid fa-chart-line"></i> 热门微博</h4>
+                    <div class="hot-post-summary">
+                        马杜罗的牺牲
+                    </div>
+                    <div class="hot-post-summary">
+                        罗杰的死
+                    </div>
+                    <div class="hot-post-summary">
+                        皇帝的雨伞
+                    </div>
+                    <div class="hot-post-summary">
+                        小猫的重生
+                    </div>
+                </div>
             </div>
             
         </div>
@@ -133,4 +152,5 @@ if (!empty($search_keyword)) {
         <p>本页面为自制微博前端演示，后端功能待后续开发</p>
     </div>
         </body>
+    </html>
     </html>

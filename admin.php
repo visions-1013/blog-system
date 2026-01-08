@@ -129,27 +129,29 @@ try {
 <head>
     <meta charset="utf-8">
     <title>XX微博 - 管理后台</title>
-    <link rel="stylesheet" href="static\css\admin_style.css">
+    <link rel="stylesheet" href="static/css/admin_style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
         <div class="header">
             <div class="head-left">
-                <h3>管理员 <?php echo $adminUsername; ?>，您好！</h3>
+                <h3><i class="fa-solid fa-user-shield"></i> 管理员 <?php echo $adminUsername; ?>，您好！</h3>
             </div>
             <div class="head-right">
-                <h3>管理系统</h3>
-                <br/><br/>
+                <h3><i class="fa-solid fa-gear"></i> 管理系统</h3>
                 <form action="" method="post">
-                    <button type="submit" name="logout" value="1" class="admin-btn btn-warning">退出登录</button>
+                    <button type="submit" name="logout" value="1" class="admin-btn btn-warning">
+                        <i class="fa-solid fa-right-from-bracket"></i> 退出登录
+                    </button>
                 </form>
             </div>
         </div>
 
         <div class="admin-nav">
             <ul>
-                <li class="active" onclick="switchTab('content')"><a href="javascript:;">内容管理</a></li>
-                <li onclick="switchTab('user')"><a href="javascript:;">用户管理</a></li>
+                <li class="active" onclick="switchTab('content')"><a href="javascript:;"><i class="fa-solid fa-file-lines"></i> 内容管理</a></li>
+                <li onclick="switchTab('user')"><a href="javascript:;"><i class="fa-solid fa-users"></i> 用户管理</a></li>
             </ul>
         </div>
 
@@ -161,19 +163,24 @@ try {
                     
                     <!-- 搜索区域 -->
                     <div class="search-area">
-                        <form action="" method="get" style="display: flex; gap: 10px; align-items: center;">
-                            <input type="text" class="search-input" name="search" 
-                                   id="searchInput" placeholder="搜索用户名或内容..."
-                                   value="<?php echo htmlspecialchars($searchKeyword); ?>">
-                            <button type="submit" class="admin-btn">搜索</button>
+                        <form action="" method="get" class="search-form">
+                            <div class="search-wrapper">
+                                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                                <input type="text" class="search-input" name="search" 
+                                       placeholder="搜索用户名或内容..."
+                                       value="<?php echo htmlspecialchars($searchKeyword); ?>">
+                            </div>
+                            <button type="submit" class="admin-btn"><i class="fa-solid fa-search"></i> 搜索</button>
                             <?php if (!empty($searchKeyword)): ?>
-                                <a href="admin.php" class="admin-btn" style="text-decoration: none; font-size: 12px; padding: 6px 12px;">清除</a>
+                                <a href="admin.php" class="admin-btn btn-clear">
+                                    <i class="fa-solid fa-xmark"></i> 清除
+                                </a>
                             <?php endif; ?>
                         </form>
                     </div>
                     
                     <?php if (!empty($searchKeyword)): ?>
-                        <div style="margin-bottom: 10px; font-size: 13px; color: #718096;">
+                        <div class="search-result-info">
                             搜索结果（关键词："<?php echo htmlspecialchars($searchKeyword); ?>"）：共找到 <?php echo count($posts); ?> 条记录
                         </div>
                     <?php endif; ?>
@@ -217,19 +224,24 @@ try {
                     
                     <!-- 用户搜索 -->
                     <div class="search-area">
-                        <form action="" method="get" style="display: flex; gap: 10px; align-items: center;">
-                            <input type="text" class="search-input" name="user_search" 
-                                   id="userSearch" placeholder="搜索用户名..."
-                                   value="<?php echo htmlspecialchars($userSearchKeyword); ?>">
-                            <button type="submit" class="admin-btn">搜索</button>
+                        <form action="" method="get" class="search-form">
+                            <div class="search-wrapper">
+                                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                                <input type="text" class="search-input" name="user_search" 
+                                       placeholder="搜索用户名..."
+                                       value="<?php echo htmlspecialchars($userSearchKeyword); ?>">
+                            </div>
+                            <button type="submit" class="admin-btn"><i class="fa-solid fa-search"></i> 搜索</button>
                             <?php if (!empty($userSearchKeyword)): ?>
-                                <a href="admin.php" class="admin-btn" style="text-decoration: none; font-size: 12px; padding: 6px 12px;">清除</a>
+                                <a href="admin.php" class="admin-btn btn-clear">
+                                    <i class="fa-solid fa-xmark"></i> 清除
+                                </a>
                             <?php endif; ?>
                         </form>
                     </div>
                     
                     <?php if (!empty($userSearchKeyword)): ?>
-                        <div style="margin-bottom: 10px; font-size: 13px; color: #718096;">
+                        <div class="search-result-info">
                             搜索结果（关键词："<?php echo htmlspecialchars($userSearchKeyword); ?>"）：共找到 <?php echo count($users); ?> 个用户
                         </div>
                     <?php endif; ?>
@@ -260,7 +272,7 @@ try {
                         </div>
                         
                         <h4 style="margin-top: 20px;">用户统计</h4>
-                        <div style="font-size: 12px; color: #718096;">
+                        <div class="user-statistics">
                             <div>总用户数: <?php echo count($users); ?></div>
                             <?php 
                             $adminCount = 0;

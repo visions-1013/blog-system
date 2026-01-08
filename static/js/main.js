@@ -12,6 +12,7 @@ function initPostButton() {
     const submitButton = document.getElementById('content-submit');
     const contentInput = document.getElementById('contentInput');
     const fileInput = document.getElementById('weibo-picture');
+    const charCount = document.getElementById('char-count');
     
     // 检查元素是否存在（避免在profile.php和search.php页面出错）
     if (!submitButton || !contentInput || !fileInput) {
@@ -30,83 +31,40 @@ function initPostButton() {
             return;
         }
         
-        if (content.length > 140) {
-            showMessage('字数超出限制（最多140字）', 'error');
-            return;
-        }
-        
-        // 如果有图片，先上传图片
-        if (fileInput.files.length > 0) {
-            uploadImageAndPost(content, fileInput.files[0]);
-        } else {
-            postWeibo(content, null);
-        }
+        // 一次性提交所有数据（内容+图片）
+        postWeibo(content, fileInput.files[0]);
     });
     
-    // 字数统计
+    // 字数统计（不限制字数）
     contentInput.addEventListener('input', function() {
-        const errInfo = document.getElementById('errInfo');
-        if (contentInput.value.length > 140) {
-            errInfo.textContent = '字数超出限制！请精简您的内容。';
-            errInfo.style.color = 'red';
-        } else {
-            errInfo.textContent = '';
+        const currentLength = this.value.length;
+        
+        // 只显示字数，不限制
+        if (charCount) {
+            charCount.textContent = currentLength + '字';
         }
     });
 }
 
-// 上传图片并发布微博
-function uploadImageAndPost(content, imageFile) {
+// 发布微博（一次性提交内容和图片）
+function postWeibo(content, imageFile) {
     const submitButton = document.getElementById('content-submit');
     const originalText = submitButton.value;
-    
-    submitButton.value = '上传中...';
-    submitButton.disabled = true;
-    
-    // 创建FormData
-    const formData = new FormData();
-    formData.append('image', imageFile);
-    
-    // 上传图片
-    ajaxRequest('POST', 'api/action_post.php', formData, function(error, response) {
-        if (error) {
-            showMessage(error, 'error');
-            submitButton.value = originalText;
-            submitButton.disabled = false;
-            return;
-        }
-        
-        if (!response.success) {
-            showMessage(response.error, 'error');
-            submitButton.value = originalText;
-            submitButton.disabled = false;
-            return;
-        }
-        
-        // 图片上传成功，获取图片路径
-        const imagePath = response.post.image;
-        postWeibo(content, imagePath, submitButton, originalText);
-    }, true);
-}
-
-// 发布微博
-function postWeibo(content, imagePath, submitButton = null, originalText = null) {
-    if (!submitButton) {
-        submitButton = document.getElementById('content-submit');
-    }
-    if (!originalText) {
-        originalText = submitButton.value;
-    }
     
     submitButton.value = '发布中...';
     submitButton.disabled = true;
     
-    const data = {
-        content: content,
-        image: imagePath || ''
-    };
+    // 创建FormData，包含内容和图片
+    const formData = new FormData();
+    formData.append('content', content);
     
-    ajaxRequest('POST', 'api/action_post.php', data, function(error, response) {
+    // 如果有图片，添加到FormData
+    if (imageFile) {
+        formData.append('image', imageFile);
+    }
+    
+    // 一次性提交
+    ajaxRequest('POST', 'api/action_post.php', formData, function(error, response) {
         if (error) {
             showMessage(error, 'error');
             submitButton.value = originalText;
@@ -126,15 +84,21 @@ function postWeibo(content, imagePath, submitButton = null, originalText = null)
         
         // 清空输入框
         document.getElementById('contentInput').value = '';
-        document.getElementById('file-name').textContent = '未选择文件';
         document.getElementById('weibo-picture').value = '';
+        document.getElementById('file-name').style.display = 'none';
+        document.getElementById('file-name').textContent = '';
+        
+        // 重置字数统计
+        if (document.getElementById('char-count')) {
+            document.getElementById('char-count').textContent = '0字';
+        }
         
         // 恢复按钮状态
         submitButton.value = originalText;
         submitButton.disabled = false;
         
         showMessage('发布成功！', 'success');
-    });
+    }, true); // true表示使用FormData
 }
 
 // 创建微博DOM元素
@@ -177,12 +141,12 @@ function createPostElement(post) {
             <small>${post.created_at}</small>
         </div>
         <button class="like-button" data-liked="false" onclick="toggleLike(this)">
-            <span class="like-icon"></span>
+            <i class="fa-solid fa-thumbs-up"></i>
             <span>点赞</span>
             <span class="like-count">${post.likes_count}</span>
         </button>
         <button class="comment-button" onclick="toggleComment(this)">
-            <span class="comment-icon">💬</span>
+            <i class="fa-regular fa-comment"></i>
             <span>评论</span>
         </button>
         <div class="comment-section" style="display: none;"></div>
@@ -457,8 +421,10 @@ function updateFileName(input) {
         }
         fileNameDisplay.textContent = fileName;
         fileNameDisplay.title = input.files[0].name;
+        fileNameDisplay.style.display = 'inline';
     } else {
-        fileNameDisplay.textContent = '未选择文件';
+        fileNameDisplay.style.display = 'none';
+        fileNameDisplay.textContent = '';
         fileNameDisplay.title = '';
     }
 }
@@ -472,3 +438,4 @@ function escapeHtml(text) {
     div.textContent = text;
     return div.innerHTML;
 }
+        

@@ -121,6 +121,7 @@ try {
 <head>
     <meta charset="utf-8">
     <title>个人中心 - <?php echo htmlspecialchars($username); ?></title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="static\css\profile_style.css">
     <script src="static/js/ajax_req.js"></script>
     <script src="static/js/main.js"></script>
@@ -219,12 +220,12 @@ try {
                                 <button class="like-button" 
                                         data-liked="<?php echo $post['is_liked'] ? 'true' : 'false'; ?>"
                                         onclick="toggleLike(this)">
-                                    <span class="like-icon"></span>
+                                    <i class="fa-solid fa-thumbs-up"></i>
                                     <span><?php echo $post['is_liked'] ? '已赞' : '点赞'; ?></span>
                                     <span class="like-count"><?php echo $post['likes_count']; ?></span>
                                 </button>
                                 <button class="comment-button" onclick="toggleComment(this)">
-                                    <span class="comment-icon">💬</span>
+                                    <i class="fa-regular fa-comment"></i>
                                     <span>评论</span>
                                 </button>
                                 <div class="comment-section" style="display: none;">
@@ -237,7 +238,10 @@ try {
                                 <div style="margin-top: 10px;">
                                     <form action="" method="post" style="display: inline;">
                                         <input type="hidden" name="delete_post_id" value="<?php echo $post['id']; ?>">
-                                        <button type="submit" class="delete-button" onclick="return confirm('确定要删除这条微博吗？');">删除</button>
+                                        <button type="submit" class="delete-button" onclick="return confirm('确定要删除这条微博吗？');">
+                                            <i class="fa-solid fa-trash"></i>
+                                            删除
+                                        </button>
                                     </form>
                                 </div>
                             </div>
@@ -248,25 +252,36 @@ try {
 
             <!-- 右侧边栏 -->
             <div class="right-sider">
-                <h4>你的关注</h4>
-                <div class="following">
-                    <div class="username">东北御姐</div>
-                    <div class="username">宇 少将</div>
-                    <div class="username">安徽秀才</div>
-                    <div class="username">杭州小航</div>
-                    <div class="username">重庆小渝</div>
+                <div class="sider-section">
+                    <h4><i class="fa-solid fa-users"></i> 你的关注</h4>
+                    <div class="user-item">
+                        <img src="static/img/default.png" alt="">
+                        <span>东北御姐</span>
+                    </div>
+                    <div class="user-item">
+                        <img src="static/img/default.png" alt="">
+                        <span>宇少将</span>
+                    </div>
+                    <div class="user-item">
+                        <img src="static/img/default.png" alt="">
+                        <span>杭州小航</span>
+                    </div>
                 </div>
                 
-                <h4>常看</h4>
-                <div class="Frequently">
-                    <div class="username">白月光</div>
-                    <div class="username">小和山本地生活</div>
-                    <div class="username">记录我的美国生活（润人）</div>
-                </div>
-                <h4>推荐关注</h4>
-                <div class="recommend">
-                    <div class="username">科技前沿</div>
-                    <div class="username">美食探店</div>
+                <div class="sider-section">
+                    <h4><i class="fa-solid fa-fire"></i> 推荐关注</h4>
+                    <div class="user-item">
+                        <img src="static/img/default.png" alt="">
+                        <span>科技前沿</span>
+                    </div>
+                    <div class="user-item">
+                        <img src="static/img/default.png" alt="">
+                        <span>美食探店</span>
+                    </div>
+                    <div class="user-item">
+                        <img src="static/img/default.png" alt="">
+                        <span>旅行日记</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -279,3 +294,6 @@ try {
     </div>
 </body>
 </html>
+            开发者团队：章航渝、章晨阳、周楷涵<br>
+            开发者团队：章航渝、章晨阳、周楷涵<br>
+                    </div>

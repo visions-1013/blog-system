@@ -1,383 +1,815 @@
-           *{
-				margin:0;
-				padding:0;
-				box-sizing:border-box;
-			} 
-			.container{
-				width:1400px;
-				margin:0 auto;
-				background-color:#fdfdfd; /* 奶油白底色 */
-				box-shadow: 0 0 12px rgba(0,0,0,0.02); /* 更淡阴影 */
-				border-radius: 8px;
-				overflow: hidden;
-			}
-			.header{
-				padding:15px 20px;
-				color:#4a5568; /* 浅灰蓝文字 */
-				background-color: #f0f8fb; /* 浅天蓝背景 */
-				display: flex;
-				border-bottom: 1px solid #e8f4f8; /* 浅蓝分割线 */
-			}
-			.head-left{
-				flex:3;
-				margin-right:10px;
-				background-color: #ffffff;
-				padding: 8px 12px;
-				border-radius: 6px;
-			}
-			.head-right{
-				flex:2;
-				text-align: right;
-				background-color: #f0f8fb;
-				padding: 8px 12px;
-				border-radius: 6px;
-			}
-			.nav{
-				padding:10px 20px;
-				background-color: #ffffff;
-				color:lightblue;
-				border-bottom: 1px solid #e8f4f8;
-				text-align: center;
-			}
-			.blog-area{
-				text-align:center;
-			}
-			.blog{
-				text-align: left;
-				margin: 10px 0;
-				padding: 8px 0;
-				border-bottom: 1px solid black; /* 黑色分割线 */
-			}
-			.footer{
-			    text-align:center;
-				padding:20px;
-				background-color: #f0f8fb; /* 浅天蓝页脚 */
-				color: #718096; /* 浅灰文字 */
-				border-top: 1px solid #e8f4f8;
-			}
-			.body{
-				display:flex;
-				padding:15px;
-				background-color: #f5fafe; /* 浅青蓝背景 */
-			}
-			.left-sider{
-				flex:1;
-				margin-right:10px;
-				background-color: #ffffff;
-				padding: 10px;
-				border-radius: 6px;
-				box-shadow: 0 1px 2px rgba(0,0,0,0.01);
-			}
-			.main-part{
-				flex:3;
-				margin-right:10px;
-				background-color: #ffffff;
-				padding: 15px;
-				border-radius: 6px;
-				box-shadow: 0 1px 2px rgba(0,0,0,0.01);
-			}
-			.right-sider{
-				flex:1;
-				background-color: #ffffff;
-				padding: 10px;
-				border-radius: 6px;
-				box-shadow: 0 1px 2px rgba(0,0,0,0.01);
-			}
-			.hot-new{
-				align-content: center;
-				margin: 8px 0;
-				padding: 4px 0;
-				border-bottom: 1px solid #f5fafe;
-			}
-			/* 按钮清新浅色系调整 */
-			#search-submit, #content-submit{
-				background-color: #66d9e8; /* 薄荷浅绿按钮 */
-				color: #2d3748; /* 深灰文字更清晰 */
-				border: none;
-				padding: 6px 12px;
-				border-radius: 4px;
-				cursor: pointer;
-				transition: background-color 0.2s;
-			}
-			#search-submit:hover, #content-submit:hover{
-				background-color: #3bc9db; /* hover加深一点薄荷绿 */
-			}
-			textarea, input[type="text"], input[type="file"]{
-				border: 1px solid #e8f4f8; /* 浅蓝边框 */
-				border-radius: 4px;
-				padding: 6px 8px;
-				background-color: #fefefe;
-			}
-			textarea:focus, input[type="text"]:focus{
-				outline: none;
-				border-color: #66d9e8; /* 聚焦薄荷绿边框 */
-				box-shadow: 0 0 0 2px rgba(102, 217, 232, 0.08);
-			}
-			select{
-				border: 1px solid #e8f4f8 !important;
-				color: #4a5568;
-				background-color: #fefefe;
-			}
-			/* 用户名和内容文字配色调整 */
-			.post-user {
-				display: flex;
-				align-items: center;
-				margin-bottom: 8px;
-			}
-			
-			.post-user-avatar {
-				display: inline-block;
-				width: 50px;
-				height: 50px;
-				border-radius: 50%;
-				object-fit: cover;
-				border: 2px solid #e8f4f8;
-				vertical-align: middle;
-				margin-right: 12px;
-				cursor: pointer;
-				transition: transform 0.2s ease;
-			}
-			
-			.post-user-avatar:hover {
-				transform: scale(1.05);
-				box-shadow: 0 0 0 8px rgba(66, 217, 232, 0.3);
-			}
-			
-			.username{
-				color: #2d3748;
-				font-weight: 600;
-				font-size: 15px;
-				text-align: left;
-			}
-			.blog-content{
-				color: #4a5568;
-				font-size: 14px;
-				line-height: 1.6;
-				padding: 0 20px;
-				text-align: left;
-				margin-bottom: 4px;
-			}
-			.blog-picture {
-			  margin: 8px 0; /* 与上下内容（博客内容/分割线）保持合理间距，避免拥挤 */
-			  text-align: left; /* 让图片水平居中，与博客整体风格统一 */
-			  padding: 0 20px; /* 左右留白，和 blog-content 保持一致，视觉协调 */
-			}
-			
-			/* 优化图片样式：防止变形、添加美化效果 */
-			.blog-picture img {
-			  /* 1. 控制图片尺寸：避免过大撑破容器，同时保证清晰度 */
-			  max-width: 300px; 
-			  max-height: 150px; /* 限制最大高度，避免图片过高占用过多空间 */
-			  width: auto; /* 宽度随高度自适应，防止图片拉伸变形 */
-			  height: auto; /* 高度随宽度自适应，保持 */
-			  }
-			
-			/* 点赞按钮样式 */
-			.like-button {
-				display: inline-block;
-				margin: 8px auto 4px;
-				padding: 6px 15px;
-				background-color: #f8f9fa;
-				border: 1px solid #e2e8f0;
-				border-radius: 20px;
-				color: #4a5568;
-				font-size: 13px;
-				cursor: pointer;
-				transition: all 0.3s ease;
-				user-select: none;
-			}
-			
-			/* 点赞按钮内部图标和文本布局 */
-			.like-button span {
-				display: inline-block;
-				vertical-align: middle;
-			}
-			
-			/* 点赞图标样式 */
-			.like-icon {
-				display: inline-block;
-				width: 16px;
-				height: 16px;
-				margin-right: 6px;
-				background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234a5568'%3E%3Cpath d='M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z'/%3E%3C/svg%3E");
-				background-repeat: no-repeat;
-				background-position: center;
-				background-size: contain;
-				transition: transform 0.2s ease;
-			}
-			
-			/* 点赞按钮悬停效果 */
-			.like-button:hover {
-				background-color: #f1f5f9;
-				border-color: #cbd5e0;
-				color: #2d3748;
-			}
-			
-			/* 点赞按钮点击效果 */
-			.like-button:active {
-				transform: scale(0.95);
-			}
-			
-			/* 点赞状态 - 已点赞样式 */
-			.like-button.liked {
-				background-color: #fff5f5;
-				border-color: #fed7d7;
-				color: #e53e3e;
-			}
-			
-			/* 点赞状态 - 已点赞图标样式 */
-			.like-button.liked .like-icon {
-				background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23e53e3e'%3E%3Cpath d='M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z'/%3E%3C/svg%3E");
-				transform: scale(1.1);
-			}
-			
-			/* 点赞动画效果 */
-			@keyframes likeAnimation {
-				0% { transform: scale(1); }
-				25% { transform: scale(1.2); }
-				50% { transform: scale(0.9); }
-				75% { transform: scale(1.1); }
-				100% { transform: scale(1); }
-			}
-			
-			.like-button.animating .like-icon {
-				animation: likeAnimation 0.4s ease;
-			}
-			
-			/* 点赞计数样式 */
-			.like-count {
-				font-weight: 600;
-				margin-left: 2px;
-			}
-			
-			/* 自定义文件上传按钮样式 */
-			.file-upload-container {
-				display: inline-block;
-				position: relative;
-				vertical-align: middle;
-			}
-			
-			.file-upload-button {
-				display: inline-block;
-				padding: 6px 12px;
-				background-color: #e6f7ff;
-				color: #2d3748;
-				border: 1px solid #bae7ff;
-				border-radius: 4px;
-				font-size: 13px;
-				cursor: pointer;
-				transition: all 0.2s ease;
-			}
-			
-			.file-upload-button:hover {
-				background-color: #d6f1ff;
-				border-color: #91d5ff;
-			}
-			
-			.file-upload-button:active {
-				background-color: #bae7ff;
-				transform: translateY(1px);
-			}
-			
-			.file-upload-container input[type="file"] {
-				position: absolute;
-				left: 0;
-				top: 0;
-				width: 100%;
-				height: 100%;
-				opacity: 0;
-				cursor: pointer;
-			}
-			
-			.file-name-display {
-				display: inline-block;
-				margin-left: 8px;
-				padding: 4px 8px;
-				font-size: 12px;
-				color: #718096;
-				background-color: #f8f9fa;
-				border-radius: 3px;
-				max-width: 150px;
-				overflow: hidden;
-				text-overflow: ellipsis;
-				white-space: nowrap;
-				vertical-align: middle;
-			}
-			
-		.file-upload-icon {
-				display: inline-block;
-				width: 14px;
-				height: 14px;
-				margin-right: 4px;
-				background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234a5568'%3E%3Cpath d='M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z'/%3E%3C/svg%3E");
-				background-repeat: no-repeat;
-				background-position: center;
-				background-size: contain;
-				vertical-align: text-bottom;
-			}
-			
-			/* 用户头像显示样式 */
-			.user-avatar-container {
-				display: block;
-				margin-top: 10px;
-				text-align: right;
-			}
-			
-			.user-avatar {
-				width: 60px;
-				height: 60px;
-				border-radius: 50%;
-				object-fit: cover;
-				border: 2px solid #e8f4f8;
-				vertical-align: middle;
-				cursor: pointer;
-				transition: transform 0.2s ease;
-			}
-			
-			.user-avatar:hover {
-				transform: scale(1.05);
-				box-shadow: 0 0 0 8px rgba(66, 217, 232, 0.3);
-			}
-			
-			/* 评论区域样式 */
-			.comment-section {
-				margin-top: 8px;
-				padding: 8px 20px;
-				color: #4a5568;
-				font-size: 13px;
-				background-color: #f8f9fa;
-				border-radius: 4px;
-			}
-			
-			/* 评论输入区域样式 */
-			.comment-input-area {
-				margin-top: 10px;
-				padding: 10px 20px;
-				background-color: #fafafa;
-				border-radius: 4px;
-				display: none;
-			}
-			
-			.comment-input-area textarea {
-				width: 100%;
-				min-height: 60px;
-				margin-bottom: 8px;
-				font-size: 13px;
-				font-family: inherit;
-				resize: vertical;
-			}
-			
-			.comment-submit-btn {
-				background-color: #66d9e8;
-				color: #2d3748;
-				border: none;
-				padding: 6px 16px;
-				border-radius: 4px;
-				cursor: pointer;
-				transition: background-color 0.2s;
-				font-size: 13px;
-			}
-			
-			.comment-submit-btn:hover {
-				background-color: #3bc9db;
-			}
+/* ====================================
+   XX微博 - 新浪微博风格样式表
+   主色调：蓝色系 #1677ff
+   ==================================== */
+
+/* CSS变量 - 统一配色管理 */
+:root {
+    --primary-blue: #1677ff;
+    --primary-dark: #0d6efd;
+    --primary-light: #4dabf7;
+    --secondary-blue: #e8f4f8;
+    --white: #ffffff;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --border-color: #e2e8f0;
+    --bg-color: #f5f7fa;
+    --card-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    --hover-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    --gradient-blue: linear-gradient(135deg, #1677ff 0%, #0d6efd 100%);
+    --gradient-hover: linear-gradient(135deg, #0d6efd 0%, #0857d6 100%);
+}
+
+/* 全局样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+/* 容器 */
+.container {
+    width: 1400px;
+    margin: 0 auto;
+    background-color: transparent;
+    border-radius: 0;
+}
+
+/* 头部导航 - 随页面滚动 */
+.header {
+    display: flex;
+    padding: 16px 24px;
+    background-color: rgba(255, 255,255, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* 头部左侧 */
+.head-left {
+    flex: 3;
+    margin-right: 16px;
+}
+
+.head-left h3 {
+    color: var(--text-primary);
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+/* 搜索表单 */
+.head-left form {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+#search {
+    flex: 1;
+    padding: 10px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 24px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background-color: var(--white);
+}
+
+#search:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(22, 119, 255, 0.1);
+}
+
+#search-submit {
+    padding: 10px 24px;
+    background: var(--gradient-blue);
+    color: var(--white);
+    border: none;
+    border-radius: 24px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(22, 119, 255, 0.3);
+}
+
+#search-submit:hover {
+    background: var(--gradient-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(22, 119, 255, 0.4);
+}
+
+/* 头部右侧 */
+.head-right {
+    flex: 2;
+    text-align: right;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 16px;
+}
+
+/* 用户信息 */
+.user-info {
+    display: flex;
+    align-items: center;
+}
+
+.username-display {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-right: 12px;
+}
+
+/* 用户头像容器 */
+.user-avatar-container {
+    display: flex;
+    align-items: center;
+}
+
+.user-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--white);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.user-avatar:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(22, 119, 255, 0.3);
+}
+
+/* 用户导航 */
+.user-nav {
+    display: flex;
+    gap: 12px;
+}
+
+.user-nav a {
+    padding: 8px 20px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-radius: 20px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background-color: var(--secondary-blue);
+}
+
+.user-nav a:hover {
+    color: var(--primary-blue);
+    background-color: rgba(22, 119, 255, 0.1);
+}
+
+/* 未登录导航 */
+.auth-nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.auth-nav a {
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.auth-nav a:hover {
+    color: var(--primary-blue);
+}
+
+.auth-nav span {
+    color: var(--border-color);
+}
+
+/* 导航栏 - 隐藏固定文字 */
+.nav {
+    display: none;
+}
+
+/* 主体内容 */
+.body {
+    display: flex;
+    padding: 20px;
+    gap: 20px;
+    background-color: transparent;
+}
+
+/* 左侧边栏 - Sticky固定在视口顶部 */
+.left-sider {
+    flex: 0 0 240px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    height: calc(100vh - 40px);
+    overflow-y: auto;
+}
+
+/* 主要内容区 */
+.main-part {
+    flex: 1;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* 发布微博区域 */
+.blog-area {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: var(--card-shadow);
+    transition: all 0.3s ease;
+}
+
+.blog-area:hover {
+    box-shadow: var(--hover-shadow);
+}
+
+.blog-area form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* 文本输入框 */
+#contentInput {
+    width: 100%;
+    padding: 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 12px 12px 0 0;
+    font-size: 15px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 120px;
+    transition: all 0.3s ease;
+    background-color: var(--secondary-blue);
+}
+
+#contentInput:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    background-color: var(--white);
+    box-shadow: 0 0 0 3px rgba(22, 119, 255, 0.1);
+}
+
+/* 工具栏 */
+.post-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background-color: var(--white);
+    border: 2px solid var(--border-color);
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    margin-top: -2px;
+}
+
+/* 工具栏左侧 */
+.toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+/* 文件上传包装器 */
+.file-upload-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 字数统计 */
+.char-count {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-left: 12px;
+}
+
+/* 成功消息 */
+.success-message {
+    background-color: #f0fdf4;
+    color: #166534;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    border: 1px solid #bbf7d0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: slideDown 0.3s ease;
+}
+
+.success-message i {
+    font-size: 16px;
+    color: #16a34a;
+}
+
+/* 错误消息 */
+.error-message {
+    background-color: #fef2f2;
+    color: #991b1b;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    border: 1px solid #fecaca;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: slideDown 0.3s ease;
+}
+
+.error-message i {
+    font-size: 16px;
+    color: #ef4444;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 错误信息 */
+.errInfo {
+    min-height: 20px;
+    color: #ef4444;
+    font-size: 13px;
+}
+
+/* 文件上传组件 */
+.file-upload-container {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.file-upload-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px;
+    background-color: var(--secondary-blue);
+    color: var(--text-secondary);
+    border: 2px dashed var(--border-color);
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.file-upload-button:hover {
+    background-color: rgba(22, 119, 255, 0.1);
+    border-color: var(--primary-blue);
+    color: var(--primary-blue);
+    transform: translateY(-2px);
+}
+
+.file-upload-button i {
+    font-size: 18px;
+}
+
+.file-upload-text {
+    font-weight: 500;
+}
+
+.file-name-display {
+    color: var(--text-secondary);
+    font-size: 13px;
+    margin-left: 8px;
+    font-weight: 500;
+}
+
+/* 发布按钮 */
+#content-submit {
+    align-self: flex-end;
+    padding: 12px 32px;
+    background: var(--gradient-blue);
+    color: var(--white);
+    border: none;
+    border-radius: 24px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(22, 119, 255, 0.3);
+}
+
+#content-submit:hover {
+    background: var(--gradient-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(22, 119, 255, 0.4);
+}
+
+/* 微博展示区 */
+.blog-display {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* 微博卡片 */
+.blog {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: var(--card-shadow);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.blog:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--hover-shadow);
+}
+
+/* 微博用户信息区 */
+.post-user {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.post-user-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--white);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-right: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.post-user-avatar:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(22, 119, 255, 0.3);
+}
+
+.username {
+    color: var(--text-primary);
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* 微博内容 */
+.blog-content {
+    color: var(--text-primary);
+    font-size: 15px;
+    line-height: 1.8;
+    margin-bottom: 12px;
+    padding: 0 8px;
+}
+
+/* 微博图片 */
+.blog-picture {
+    margin: 12px 0;
+    padding: 0 8px;
+}
+
+.blog-picture img {
+    max-width: 100%;
+    max-height: 400px;
+    width: auto;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 发布时间 */
+.post-time {
+    margin: 12px 0;
+    padding: 0 8px;
+}
+
+.post-time small {
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+/* 按钮组 */
+.like-button,
+.comment-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 12px 8px 12px 8px;
+    padding: 8px 20px;
+    background-color: var(--secondary-blue);
+    border: none;
+    border-radius: 20px;
+    color: var(--text-secondary);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.like-button:hover,
+.comment-button:hover {
+    background-color: rgba(22, 119, 255, 0.1);
+    color: var(--primary-blue);
+    transform: translateY(-2px);
+}
+
+/* 点赞按钮特定样式 */
+.like-button {
+    gap: 6px;
+}
+
+/* Font Awesome图标样式 */
+.like-button i,
+.comment-button i {
+    font-size: 16px;
+    transition: transform 0.2s ease;
+}
+
+/* 已点赞状态 */
+.like-button.liked {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.like-button.liked i {
+    transform: scale(1.2);
+}
+
+.like-count {
+    font-weight: 600;
+    margin-left: 4px;
+}
+
+/* 点赞动画 */
+@keyframes likeAnimation {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.4); }
+    50% { transform: scale(0.9); }
+    75% { transform: scale(1.15); }
+    100% { transform: scale(1.2); }
+}
+
+.like-button.animating i {
+    animation: likeAnimation 0.4s ease;
+}
+
+/* 评论区域 */
+.comment-section {
+    margin-top: 16px;
+    padding: 16px;
+    background-color: var(--secondary-blue);
+    border-radius: 12px;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+/* 评论输入区 */
+.comment-input-area {
+    margin-top: 16px;
+    padding: 16px;
+    background-color: var(--secondary-blue);
+    border-radius: 12px;
+}
+
+.comment-input-area textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 12px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    margin-bottom: 12px;
+    background-color: var(--white);
+}
+
+.comment-input-area textarea:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(22, 119, 255, 0.1);
+}
+
+.comment-submit-btn {
+    padding: 8px 24px;
+    background: var(--gradient-blue);
+    color: var(--white);
+    border: none;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(22, 119, 255, 0.3);
+}
+
+.comment-submit-btn:hover {
+    background: var(--gradient-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(22, 119, 255, 0.4);
+}
+
+/* 右侧边栏 - Sticky固定在视口顶部 */
+.right-sider {
+    flex: 0 0 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    height: calc(100vh - 40px);
+    overflow-y: auto;
+}
+
+/* 侧边栏区块 */
+.sider-section {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: var(--card-shadow);
+}
+
+.sider-section h4 {
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 导航链接 */
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.nav-link:hover {
+    background-color: var(--secondary-blue);
+    color: var(--primary-blue);
+    padding-left: 16px;
+    transform: translateX(4px);
+}
+
+/* 用户列表项 */
+.user-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.user-item:hover {
+    background-color: var(--secondary-blue);
+}
+
+.user-item img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--white);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.user-item span {
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* 热门话题标签 */
+.topic-tag {
+    display: inline-block;
+    padding: 8px 14px;
+    background-color: var(--secondary-blue);
+    color: var(--text-secondary);
+    border-radius: 20px;
+    margin: 4px;
+    font-size: 13px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.topic-tag:hover {
+    background-color: var(--primary-blue);
+    color: var(--white);
+    transform: translateY(-2px);
+}
+
+/* 热门微博摘要 */
+.hot-post-summary {
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 8px;
+    padding: 8px;
+    background-color: var(--secondary-blue);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.hot-post-summary:hover {
+    background-color: rgba(22, 119, 255, 0.1);
+    color: var(--primary-blue);
+}
+
+/* 页脚 */
+.footer {
+    text-align: center;
+    padding: 24px;
+    background-color: var(--white);
+    color: var(--text-secondary);
+    border-top: 1px solid var(--border-color);
+    margin-top: 40px;
+    font-size: 13px;
+}
+
+.footer br {
+    margin: 8px 0;
+    display: block;
+}
+
+/* 暂无微博 */
+.no-posts {
+    text-align: center;
+    padding: 60px 20px;
+    background: var(--white);
+    border-radius: 16px;
+    box-shadow: var(--card-shadow);
+}
+
+.no-posts p {
+    color: var(--text-secondary);
+    font-size: 16px;
+    margin: 0;
+}
+
+/* 响应式设计 */
+@media (max-width: 1440px) {
+    .container {
+        width: 100%;
+        max-width: 1200px;
+    }
+}
+
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .head-left,
+    .head-right {
+        width: 100%;
+        flex: none;
+    }
+    
+    .head-left h3 {
+        font-size: 16px;
+    }
+    
+    .blog-area,
+    .blog {
+        padding: 16px;
+    }
+}
