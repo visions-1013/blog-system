@@ -60,16 +60,21 @@ if ((int)$_SESSION['role'] !== 1) {
 
 $adminUsername = isset($_SESSION['username']) ? htmlspecialchars($_SESSION['username'], ENT_QUOTES, 'UTF-8') : '管理员';
 
-// 处理帖子搜索关键词
-$searchKeyword = '';
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['search'])) {
-    $searchKeyword = trim($_GET['search']);
-}
+// 判断当前激活的标签
+$activeTab = 'content'; // 默认内容管理
 
 // 处理用户搜索关键词
 $userSearchKeyword = '';
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['user_search'])) {
     $userSearchKeyword = trim($_GET['user_search']);
+    // 如果有用户搜索参数，激活用户管理标签
+    $activeTab = 'user';
+}
+
+// 处理帖子搜索关键词
+$searchKeyword = '';
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['search'])) {
+    $searchKeyword = trim($_GET['search']);
 }
 
 // 查询帖子（带搜索功能）
@@ -150,15 +155,15 @@ try {
 
         <div class="admin-nav">
             <ul>
-                <li class="active" onclick="switchTab('content')"><a href="javascript:;"><i class="fa-solid fa-file-lines"></i> 内容管理</a></li>
-                <li onclick="switchTab('user')"><a href="javascript:;"><i class="fa-solid fa-users"></i> 用户管理</a></li>
+                <li class="<?php echo $activeTab === 'content' ? 'active' : ''; ?>" onclick="switchTab('content')"><a href="javascript:;"><i class="fa-solid fa-file-lines"></i> 内容管理</a></li>
+                <li class="<?php echo $activeTab === 'user' ? 'active' : ''; ?>" onclick="switchTab('user')"><a href="javascript:;"><i class="fa-solid fa-users"></i> 用户管理</a></li>
             </ul>
         </div>
 
         <div class="body">
             <div class="main-part">
                 <!-- 内容管理部分 -->
-                <div id="content-management" class="admin-display">
+                <div id="content-management" class="admin-display" style="display: <?php echo $activeTab === 'content' ? 'block' : 'none'; ?>;">
                     <h4>发帖内容管理</h4>
                     
                     <!-- 搜索区域 -->
@@ -210,7 +215,10 @@ try {
                                 <div style="margin-top: 10px;">
                                     <form action="" method="post">
                                         <input type="hidden" name="delete_post_id" value="<?php echo $post['id']; ?>">
-                                        <button type="submit" class="admin-btn btn-danger">删除</button>
+                                        <button type="submit" class="admin-btn btn-danger" 
+                                                onclick="return confirmDeletePost(event, '<?php echo $post['id']; ?>', '<?php echo htmlspecialchars($post['username']); ?>')">
+                                            删除帖子
+                                        </button>
                                     </form>
                                 </div>
                             </div>
@@ -219,7 +227,7 @@ try {
                 </div>
 
                 <!-- 用户管理部分 -->
-                <div id="user-management" class="admin-display" style="display: none;">
+                <div id="user-management" class="admin-display" style="display: <?php echo $activeTab === 'user' ? 'block' : 'none'; ?>;">
                     <h4>用户管理</h4>
                     
                     <!-- 用户搜索 -->
@@ -263,7 +271,10 @@ try {
                                         <?php if ((int)$user['role'] !== 1): ?>
                                         <form action="" method="post">
                                             <input type="hidden" name="delete_user_id" value="<?php echo $user['id']; ?>">
-                                            <button type="submit" class="admin-btn btn-danger" style="font-size: 11px; padding: 4px 8px;">删除用户</button>
+                                            <button type="submit" class="admin-btn btn-danger" style="font-size: 11px; padding: 4px 8px;"
+                                                    onclick="return confirmDeleteUser(event, '<?php echo $user['id']; ?>', '<?php echo htmlspecialchars($user['username']); ?>')">
+                                                删除用户
+                                            </button>
                                         </form>
                                         <?php endif; ?>
                                     </div>
@@ -296,6 +307,37 @@ try {
     </div>
 
     <script>
+        // 删除帖子确认
+        function confirmDeletePost(event, postId, username) {
+            event.preventDefault(); // 阻止表单默认提交
+            
+            // 获取微博内容
+            const postContent = event.target.closest('.data-card').querySelector('.post-content').textContent.trim();
+            
+            // 显示确认对话框（最多显示50个字符，超出显示"..."）
+            if (confirm('确认删除这条微博吗？\n\n发布者：' + username + '\n\n内容：' + postContent.substring(0, 50) + (postContent.length > 50 ? '...' : ''))) {
+                // 用户确认，提交表单
+                event.target.closest('form').submit();
+            } else {
+                // 用户取消，阻止表单提交
+                return false;
+            }
+        }
+    
+        // 删除用户确认
+        function confirmDeleteUser(event, userId, username) {
+            event.preventDefault(); // 阻止表单默认提交
+            
+            // 显示确认对话框
+            if (confirm('确认删除用户：' + username + '\n\n删除用户将同时删除其所有发布的微博！\n\n此操作不可恢复！')) {
+                // 用户确认，提交表单
+                event.target.closest('form').submit();
+            } else {
+                // 用户取消，阻止表单提交
+                return false;
+            }
+        }
+        
         // 切换标签页
         function switchTab(tabName) {
             // 获取所有管理区域的元素
