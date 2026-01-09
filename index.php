@@ -170,22 +170,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['content-submit'])) {
 
 
 
-// 查询微博列表（包含当前用户的点赞状态和头像）
+// 查询微博列表（包含当前用户的点赞状态和关注状态）
 $posts = [];
 try {
     if ($is_logged_in) {
-        // 已登录：查询点赞状态
+        // 已登录：查询点赞状态和关注状态
         $sql = "SELECT p.*, u.username, u.avatar,
-                CASE WHEN l.id IS NOT NULL THEN 1 ELSE 0 END as is_liked
+                CASE WHEN l.id IS NOT NULL THEN 1 ELSE 0 END as is_liked,
+                CASE WHEN f.id IS NOT NULL THEN 1 ELSE 0 END as is_followed
                 FROM posts p 
                 LEFT JOIN users u ON p.user_id = u.id 
                 LEFT JOIN likes l ON p.id = l.post_id AND l.user_id = ?
+                LEFT JOIN follows f ON p.user_id = f.followed_id AND f.follower_id = ?
                 ORDER BY p.created_at DESC";
         $stmt = $pdo->prepare($sql);
-        $stmt->execute([$current_user]);
+        $stmt->execute([$current_user, $current_user]);
     } else {
-        // 未登录：不查询点赞状态
-        $sql = "SELECT p.*, u.username, u.avatar, 0 as is_liked
+        // 未登录：不查询点赞状态和关注状态
+        $sql = "SELECT p.*, u.username, u.avatar, 0 as is_liked, 0 as is_followed
                 FROM posts p 
                 LEFT JOIN users u ON p.user_id = u.id 
                 ORDER BY p.created_at DESC";
@@ -281,30 +283,10 @@ try {
 					</div>
 					
 					<div class="sider-section">
-						<h4><i class="fa-solid fa-star"></i> 特别关注</h4>
-						<div class="user-item">
-							<img src="static/img/default.png" alt="">
-							<span>东北御姐</span>
-						</div>
-						<div class="user-item">
-							<img src="static/img/default.png" alt="">
-							<span>宇少将</span>
-						</div>
-						<div class="user-item">
-							<img src="static/img/default.png" alt="">
-							<span>安徽秀才</span>
-						</div>
-					</div>
-					
-					<div class="sider-section">
-						<h4><i class="fa-solid fa-users"></i> 我的好友</h4>
-						<div class="user-item">
-							<img src="static/img/default.png" alt="">
-							<span>杭州小航</span>
-						</div>
-						<div class="user-item">
-							<img src="static/img/default.png" alt="">
-							<span>重庆小渝</span>
+						<h4><i class="fa-solid fa-star"></i> 我的关注</h4>
+						<div id="follows-list">
+							<!-- 关注用户列表将通过AJAX动态加载 -->
+							<div class="loading-hint">加载中...</div>
 						</div>
 					</div>
 				</div>
@@ -367,8 +349,15 @@ try {
                                     <div class="post-user">
                                         <img src="static/img/<?php echo htmlspecialchars($post['avatar'] ?? 'default.png'); ?>" 
                                              class="post-user-avatar" 
-                                             alt="<?php echo htmlspecialchars($post['username']); ?>的头像">
-                                        <div class="username"><?php echo htmlspecialchars($post['username']); ?></div>
+                                             alt="<?php echo htmlspecialchars($post['username']); ?>的头像"
+                                             onclick="window.location.href='user_profile.php?user_id=<?php echo $post['user_id']; ?>'"
+                                             style="cursor: pointer;">
+                                        <div class="username">
+                                            <?php echo htmlspecialchars($post['username']); ?>
+                                            <?php if ($post['is_followed']): ?>
+                                                <i class="fa-solid fa-star" style="color: #ffd700; margin-left: 5px; font-size: 14px;" title="已关注"></i>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
                                     <div class="blog-content"><?php echo nl2br(htmlspecialchars($post['content'])); ?></div>
 									<?php if (!empty($post['image'])): ?>
@@ -411,39 +400,6 @@ try {
 						<a href="#" class="topic-tag">#旅行记录</a>
 						<a href="#" class="topic-tag">#学习笔记</a>
 					</div>
-					
-					<div class="sider-section">
-						<h4><i class="fa-solid fa-thumbs-up"></i> 推荐关注</h4>
-						<div class="user-item">
-							<img src="static/img/default.png" alt="">
-							<span>科技前沿</span>
-						</div>
-						<div class="user-item">
-							<img src="static/img/default.png" alt="">
-							<span>美食探店</span>
-						</div>
-						<div class="user-item">
-							<img src="static/img/default.png" alt="">
-							<span>旅行日记</span>
-						</div>
-						<div class="user-item">
-							<img src="static/img/default.png" alt="">
-							<span>学习分享</span>
-						</div>
-					</div>
-					
-					<div class="sider-section">
-						<h4><i class="fa-solid fa-chart-line"></i> 热门微博</h4>
-						<div class="hot-post-summary">
-							1. 震惊！我们杭州又赢了！！
-						</div>
-						<div class="hot-post-summary">
-							2. 小猪佩奇居然是我们杭州人？
-						</div>
-						<div class="hot-post-summary">
-							3. 杭州小伙研制出利器
-						</div>
-					</div>
 				</div>
 			</div>
 		</div>
@@ -455,3 +411,5 @@ try {
 	</body>
 </html>
 </html>
+						</div>
+							<span>旅行日记</span>

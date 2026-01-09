@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', function() {
     initLikeButtons();
     initCommentButtons();
     initFileUpload();
+    initFollowButtons();
+    loadFollows();
 });
 
 // ==================== 发布微博功能 ====================
@@ -427,6 +429,172 @@ function updateFileName(input) {
         fileNameDisplay.textContent = '';
         fileNameDisplay.title = '';
     }
+}
+
+// ==================== 关注功能 ====================
+
+function initFollowButtons() {
+    const followButtons = document.querySelectorAll('.follow-button');
+    followButtons.forEach(button => {
+        // 根据data-following属性设置初始状态
+        const isFollowing = button.getAttribute('data-following') === 'true';
+        if (isFollowing) {
+            button.classList.add('following');
+            button.classList.remove('not-following');
+            button.innerHTML = '<i class="fa-solid fa-check"></i> 已关注';
+        } else {
+            button.classList.add('not-following');
+            button.classList.remove('following');
+            button.innerHTML = '<i class="fa-solid fa-plus"></i> 关注';
+        }
+    });
+}
+
+function toggleFollow(button) {
+    const userId = button.getAttribute('data-user-id');
+    const isFollowing = button.classList.contains('following');
+    
+    // 立即切换UI状态（乐观更新）
+    if (isFollowing) {
+        button.classList.remove('following');
+        button.classList.add('not-following');
+        button.innerHTML = '<i class="fa-solid fa-plus"></i> 关注';
+    } else {
+        button.classList.add('following');
+        button.classList.remove('not-following');
+        button.innerHTML = '<i class="fa-solid fa-check"></i> 已关注';
+    }
+    
+    // 发送AJAX请求
+    ajaxRequest('POST', 'api/action_follow.php', {
+        target_user_id: parseInt(userId)
+    }, function(error, response) {
+        if (error) {
+            // 请求失败，恢复状态
+            if (isFollowing) {
+                button.classList.add('following');
+                button.classList.remove('not-following');
+                button.innerHTML = '<i class="fa-solid fa-check"></i> 已关注';
+            } else {
+                button.classList.remove('following');
+                button.classList.add('not-following');
+                button.innerHTML = '<i class="fa-solid fa-plus"></i> 关注';
+            }
+            showMessage(error, 'error');
+            return;
+        }
+        
+        if (!response.success) {
+            // 操作失败，恢复状态
+            if (isFollowing) {
+                button.classList.add('following');
+                button.classList.remove('not-following');
+                button.innerHTML = '<i class="fa-solid fa-check"></i> 已关注';
+            } else {
+                button.classList.remove('following');
+                button.classList.add('not-following');
+                button.innerHTML = '<i class="fa-solid fa-plus"></i> 关注';
+            }
+            showMessage(response.error, 'error');
+            return;
+        }
+        
+        // 更新为实际的状态
+        if (response.is_following) {
+            button.classList.add('following');
+            button.classList.remove('not-following');
+            button.innerHTML = '<i class="fa-solid fa-check"></i> 已关注';
+        } else {
+            button.classList.remove('following');
+            button.classList.add('not-following');
+            button.innerHTML = '<i class="fa-solid fa-plus"></i> 关注';
+        }
+        
+        // 显示提示信息
+        showMessage(response.message, 'success');
+        
+        // 重新加载关注列表
+        loadFollows();
+    });
+}
+
+function loadFollows() {
+    console.log('loadFollows() 函数开始执行');
+    
+    const followsList = document.getElementById('follows-list');
+    
+    console.log('follows-list 元素:', followsList);
+    
+    // 如果元素不存在，跳过（例如在未登录状态）
+    if (!followsList) {
+        console.log('follows-list 元素不存在，跳过加载');
+        return;
+    }
+    
+    // 检查是否在用户资料页面（查看他人资料页）
+    const currentPath = window.location.pathname;
+    const isUserProfilePage = currentPath.includes('user_profile.php');
+    
+    console.log('当前页面路径:', currentPath);
+    console.log('是否为用户资料页:', isUserProfilePage);
+    
+    // 如果在查看他人资料的页面，不加载关注列表
+    if (isUserProfilePage) {
+        followsList.innerHTML = '<p style="text-align:center;color:#999;">查看他人资料</p>';
+        return;
+    }
+    
+    followsList.innerHTML = '<p style="text-align:center;color:#999;">加载中...</p>';
+    
+    console.log('准备发送AJAX请求获取关注列表');
+    
+    ajaxRequest('GET', 'api/get_follows.php', {}, function(error, response) {
+        console.log('AJAX响应 - error:', error);
+        console.log('AJAX响应 - response:', response);
+        
+        if (error) {
+            console.error('加载关注列表失败:', error);
+            followsList.innerHTML = '<p style="text-align:center;color:red;">加载失败</p>';
+            return;
+        }
+        
+        if (!response.success) {
+            console.error('API返回失败:', response.error);
+            followsList.innerHTML = '<p style="text-align:center;color:red;">' + escapeHtml(response.error) + '</p>';
+            return;
+        }
+        
+        console.log('获取到的关注用户数量:', response.data.length);
+        
+        // 显示关注列表
+        if (response.data.length === 0) {
+            followsList.innerHTML = '<p style="text-align:center;color:#999;">暂无关注</p>';
+        } else {
+            followsList.innerHTML = '';
+            response.data.forEach(user => {
+                console.log('创建关注用户元素:', user);
+                createFollowUserElement(user, followsList);
+            });
+        }
+        
+        console.log('关注列表加载完成');
+    });
+}
+
+function createFollowUserElement(user, container) {
+    const userDiv = document.createElement('div');
+    userDiv.className = 'user-item';
+    userDiv.style.cursor = 'pointer';
+    userDiv.onclick = function() {
+        window.location.href = 'user_profile.php?user_id=' + user.id;
+    };
+    
+    userDiv.innerHTML = `
+        <img src="static/img/${escapeHtml(user.avatar || 'default.png')}" alt="${escapeHtml(user.username)}">
+        <span>${escapeHtml(user.username)}</span>
+    `;
+    
+    container.appendChild(userDiv);
 }
 
 // ==================== 工具函数 ====================

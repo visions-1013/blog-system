@@ -14,20 +14,22 @@ if (!empty($search_keyword)) {
         $current_user_id = $is_logged_in ? $_SESSION['user_id'] : 0;
         
         if ($is_logged_in) {
-            // 已登录：查询点赞状态和头像
+            // 已登录：查询点赞状态、关注状态和头像
             $sql = "SELECT p.*, u.username, u.avatar,
-                    CASE WHEN l.id IS NOT NULL THEN 1 ELSE 0 END as is_liked
+                    CASE WHEN l.id IS NOT NULL THEN 1 ELSE 0 END as is_liked,
+                    CASE WHEN f.id IS NOT NULL THEN 1 ELSE 0 END as is_followed
                     FROM posts p 
                     LEFT JOIN users u ON p.user_id = u.id 
                     LEFT JOIN likes l ON p.id = l.post_id AND l.user_id = ?
+                    LEFT JOIN follows f ON p.user_id = f.followed_id AND f.follower_id = ?
                     WHERE p.content LIKE ? OR u.username LIKE ?
                     ORDER BY p.created_at DESC";
             $stmt = $pdo->prepare($sql);
             $keyword = "%$search_keyword%";
-            $stmt->execute([$current_user_id, $keyword, $keyword]);
+            $stmt->execute([$current_user_id, $current_user_id, $keyword, $keyword]);
         } else {
-            // 未登录：不查询点赞状态，但查询头像
-            $sql = "SELECT p.*, u.username, u.avatar, 0 as is_liked
+            // 未登录：不查询点赞状态、关注状态，但查询头像
+            $sql = "SELECT p.*, u.username, u.avatar, 0 as is_liked, 0 as is_followed
                     FROM posts p 
                     LEFT JOIN users u ON p.user_id = u.id 
                     WHERE p.content LIKE ? OR u.username LIKE ?
@@ -87,8 +89,15 @@ if (!empty($search_keyword)) {
                         <div class="post-user">
                             <img src="static/img/<?php echo htmlspecialchars($post['avatar'] ?? 'default.png'); ?>" 
                                  class="post-user-avatar" 
-                                 alt="<?php echo htmlspecialchars($post['username']); ?>的头像">
-                            <div class="username"><?php echo htmlspecialchars($post['username']); ?></div>
+                                 alt="<?php echo htmlspecialchars($post['username']); ?>的头像"
+                                 onclick="window.location.href='user_profile.php?user_id=<?php echo $post['user_id']; ?>'"
+                                 style="cursor: pointer;">
+                            <div class="username">
+                                <?php echo htmlspecialchars($post['username']); ?>
+                                <?php if ($post['is_followed']): ?>
+                                    <i class="fa-solid fa-star" style="color: #ffd700; margin-left: 5px; font-size: 14px;" title="已关注"></i>
+                                <?php endif; ?>
+                            </div>
                         </div>
                         <div class="blog-content"><?php echo nl2br(htmlspecialchars($post['content'])); ?></div>
                         <?php if (!empty($post['image'])): ?>
@@ -96,6 +105,9 @@ if (!empty($search_keyword)) {
                             <img src="<?php echo htmlspecialchars($post['image']); ?>" alt="微博配图">
                         </div>
                         <?php endif; ?>
+                        <div class="post-time">
+                            <small><?php echo date('Y-m-d H:i:s', strtotime($post['created_at'])); ?></small>
+                        </div>
                         <button class="like-button" 
                                 data-liked="<?php echo $post['is_liked'] ? 'true' : 'false'; ?>"
                                 onclick="toggleLike(this)">

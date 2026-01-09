@@ -125,6 +125,26 @@ try {
     <link rel="stylesheet" href="static\css\profile_style.css">
     <script src="static/js/ajax_req.js"></script>
     <script src="static/js/main.js"></script>
+    <script>
+        // 调试：检查页面是否加载
+        console.log('=== Profile.php 调试信息 ===');
+        console.log('页面已加载');
+        console.log('当前URL:', window.location.href);
+        console.log('当前路径:', window.location.pathname);
+        console.log('DOM是否准备好:', document.readyState);
+        
+        // 手动触发loadFollows用于测试
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                console.log('手动触发loadFollows()');
+                if (typeof loadFollows === 'function') {
+                    loadFollows();
+                } else {
+                    console.error('loadFollows函数不存在！');
+                }
+            }, 500);
+        });
+    </script>
     <style>
         /* 用户头像显示样式 */
         .user-avatar-container {
@@ -253,34 +273,10 @@ try {
             <!-- 右侧边栏 -->
             <div class="right-sider">
                 <div class="sider-section">
-                    <h4><i class="fa-solid fa-users"></i> 你的关注</h4>
-                    <div class="user-item">
-                        <img src="static/img/default.png" alt="">
-                        <span>东北御姐</span>
-                    </div>
-                    <div class="user-item">
-                        <img src="static/img/default.png" alt="">
-                        <span>宇少将</span>
-                    </div>
-                    <div class="user-item">
-                        <img src="static/img/default.png" alt="">
-                        <span>杭州小航</span>
-                    </div>
-                </div>
-                
-                <div class="sider-section">
-                    <h4><i class="fa-solid fa-fire"></i> 推荐关注</h4>
-                    <div class="user-item">
-                        <img src="static/img/default.png" alt="">
-                        <span>科技前沿</span>
-                    </div>
-                    <div class="user-item">
-                        <img src="static/img/default.png" alt="">
-                        <span>美食探店</span>
-                    </div>
-                    <div class="user-item">
-                        <img src="static/img/default.png" alt="">
-                        <span>旅行日记</span>
+                    <h4><i class="fa-solid fa-star"></i> 我的关注</h4>
+                    <div id="follows-list">
+                        <!-- 关注用户列表将通过AJAX动态加载 -->
+                        <div class="loading-hint">加载中...</div>
                     </div>
                 </div>
             </div>
@@ -295,3 +291,4 @@ try {
 </body>
 </html>
 
+                        <span>科技前沿</span>

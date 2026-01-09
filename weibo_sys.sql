@@ -62,3 +62,18 @@ CREATE TABLE `likes` (
   CONSTRAINT `fk_likes_post` FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_likes_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+DROP TABLE IF EXISTS `follows`;-- 创建关注关系表
+CREATE TABLE `follows` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '记录ID',
+  `follower_id` int(11) NOT NULL COMMENT '关注者ID',
+  `followed_id` int(11) NOT NULL COMMENT '被关注者ID',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '关注时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_follow` (`follower_id`, `followed_id`), -- 防止重复关注
+  KEY `fk_follows_follower` (`follower_id`),
+  KEY `fk_follows_followed` (`followed_id`),
+  CONSTRAINT `fk_follows_follower` FOREIGN KEY (`follower_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_follows_followed` FOREIGN KEY (`followed_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

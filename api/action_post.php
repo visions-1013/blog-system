@@ -23,17 +23,31 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// 获取微博内容
-$content = trim($_POST['content'] ?? '');
+// 添加详细调试日志
+error_log('=== POST请求调试 ===');
+error_log('$_POST数据: ' . print_r($_POST, true));
+error_log('$_FILES数据: ' . print_r($_FILES, true));
+
+// 获取微博内容（兼容FormData）
+$content = '';
+if (isset($_POST['content'])) {
+    $content = trim($_POST['content']);
+}
+
+error_log('解析后的content: ' . var_export($content, true));
 
 // 验证内容
 if (empty($content)) {
+    error_log('内容为空，返回错误');
     echo json_encode([
         'success' => false,
         'error' => '微博内容不能为空'
     ]);
     exit;
 }
+
+// 添加调试日志
+error_log('微博内容验证通过: ' . $content);
 
 // 处理图片上传
 $image_path = null;
