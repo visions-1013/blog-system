@@ -136,6 +136,7 @@ try {
     <title>XX微博 - 管理后台</title>
     <link rel="stylesheet" href="static/css/admin_style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="static/js/ajax_req.js"></script>
 </head>
 <body>
     <div class="container">
@@ -213,7 +214,11 @@ try {
                                     </div>
                                 <?php endif; ?>
                                 <div style="margin-top: 10px;">
-                                    <form action="" method="post">
+                                    <button class="admin-btn" onclick="toggleAdminComments(<?php echo $post['id']; ?>)">
+                                        <i class="fa-solid fa-comments"></i> 查看评论
+                                    </button>
+                                    <div id="admin-comments-<?php echo $post['id']; ?>" class="admin-comment-section" style="display: none;"></div>
+                                    <form action="" method="post" style="display: inline-block; margin-left: 10px;">
                                         <input type="hidden" name="delete_post_id" value="<?php echo $post['id']; ?>">
                                         <button type="submit" class="admin-btn btn-danger" 
                                                 onclick="return confirmDeletePost(event, '<?php echo $post['id']; ?>', '<?php echo htmlspecialchars($post['username']); ?>')">
@@ -301,9 +306,8 @@ try {
     </div>
 
     <div class="footer">
-        © 2026 XX微博 版权所有 | 管理系统<br>
-            开发者团队：章航渝、章晨阳、周凯涵<br>
-            当前版本：v2.1.0
+        © 2026 XX微博 版权所有 | 管理系统<br/>
+            开发者团队：周楷涵、章晨阳、章航渝
     </div>
 
     <script>
@@ -364,7 +368,146 @@ try {
             }
         }
         
+        // 管理员查看/隐藏评论
+        function toggleAdminComments(postId) {
+            var commentSection = document.getElementById('admin-comments-' + postId);
+            
+            if (commentSection.style.display === 'none' || commentSection.style.display === '') {
+                commentSection.style.display = 'block';
+                loadAdminComments(postId, commentSection);
+            } else {
+                commentSection.style.display = 'none';
+            }
+        }
         
+        // 加载管理员评论列表
+        function loadAdminComments(postId, commentSection) {
+            commentSection.innerHTML = '<p style="text-align:center;color:#999;">加载中...</p>';
+            
+            ajaxRequest('GET', 'api/action_get_comments.php', {
+                post_id: postId
+            }, function(error, response) {
+                if (error) {
+                    commentSection.innerHTML = '<p style="text-align:center;color:red;">加载失败，请重试</p>';
+                    return;
+                }
+                
+                if (!response.success) {
+                    commentSection.innerHTML = '<p style="text-align:center;color:red;">' + escapeHtml(response.error) + '</p>';
+                    return;
+                }
+                
+                // 显示评论列表
+                if (response.comments.length === 0) {
+                    commentSection.innerHTML = '<p style="text-align:center;color:#999;">暂无评论</p>';
+                } else {
+                    commentSection.innerHTML = '<h5 style="margin-bottom:12px;color:#666;">评论列表 (' + response.comments.length + ')</h5>';
+                    response.comments.forEach(comment => {
+                        createAdminCommentElement(comment, commentSection);
+                    });
+                }
+            });
+        }
+        
+        // 创建管理员评论DOM元素
+        function createAdminCommentElement(comment, commentSection) {
+            var commentDiv = document.createElement('div');
+            commentDiv.className = 'comment-item';
+            commentDiv.setAttribute('data-comment-id', comment.id);
+            commentDiv.style.marginBottom = '12px';
+            commentDiv.style.padding = '12px';
+            commentDiv.style.border = '1px solid #e2e8f0';
+            commentDiv.style.borderRadius = '8px';
+            commentDiv.style.backgroundColor = '#f8fafc';
+            
+            var deleteButtonHtml = '';
+            if (comment.can_delete) {
+                deleteButtonHtml = `
+                    <button class="delete-comment-btn" onclick="confirmDeleteComment(this)" title="删除评论">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                `;
+            }
+            
+            commentDiv.innerHTML = `
+                <div class="comment-content-wrapper">
+                    <strong>${escapeHtml(comment.username)}</strong>
+                    <small style="color:#666;margin-left:8px;">${comment.created_at}</small>
+                    <div style="margin-top:8px;color:#333;">${escapeHtml(comment.content)}</div>
+                    ${deleteButtonHtml}
+                </div>
+            `;
+            
+            commentSection.appendChild(commentDiv);
+        }
+        
+        // HTML转义
+        function escapeHtml(text) {
+            if (!text) return '';
+            var div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // 确认删除评论
+        function confirmDeleteComment(button) {
+            const commentDiv = button.closest('.comment-item');
+            const commentContent = commentDiv.querySelector('.comment-content-wrapper div:last-of-type').textContent.trim();
+            
+            // 二次确认
+            if (confirm('确定要删除这条评论吗？')) {
+                const commentId = commentDiv.getAttribute('data-comment-id');
+                deleteAdminComment(button, commentId);
+            }
+        }
+        
+        // 执行删除评论
+        function deleteAdminComment(button, commentId) {
+            const commentDiv = button.closest('.comment-item');
+            
+            button.disabled = true;
+            button.style.opacity = '0.5';
+            
+            ajaxRequest('POST', 'api/action_delete_comment.php', {
+                comment_id: commentId
+            }, function(error, response) {
+                if (error) {
+                    alert(error);
+                    button.disabled = false;
+                    button.style.opacity = '1';
+                    return;
+                }
+                
+                if (!response.success) {
+                    alert(response.error);
+                    button.disabled = false;
+                    button.style.opacity = '1';
+                    return;
+                }
+                
+                // 删除成功，移除评论元素
+                commentDiv.style.transition = 'opacity 0.3s ease';
+                commentDiv.style.opacity = '0';
+                
+                setTimeout(() => {
+                    commentDiv.remove();
+                    
+                    // 检查是否还有评论，如果没有则更新评论数量
+                    const commentSection = commentDiv.parentElement;
+                    const remainingComments = commentSection.querySelectorAll('.comment-item');
+                    const countHeader = commentSection.querySelector('h5');
+                    if (countHeader) {
+                        countHeader.textContent = '评论列表 (' + remainingComments.length + ')';
+                    }
+                    
+                    if (remainingComments.length === 0) {
+                        commentSection.innerHTML = '<p style="text-align:center;color:#999;">暂无评论</p>';
+                    }
+                    
+                    alert('删除成功！');
+                }, 300);
+            });
+        }
     </script>
 </body>
 </html>

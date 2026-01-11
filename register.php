@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<title>XX客户端注册界面</title>
+		<title>注册 - XX微博</title>
 		<link rel="stylesheet" href="static\css\style.css">
 	</head>
 	<body>
@@ -134,8 +134,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
 
     <!-- 底部版权 -->
     <div class="auth-footer">
-        <p>© 2026 XX微博 版权所有 | 开发者团队：219</p>
-        <p>本页面为自制微博前端演示，后端功能待后续开发</p>
+        <p>© 2026 XX微博 版权所有 | 隐私政策 | 联系我们</p>
+        <p>开发者团队：周楷涵、章晨阳、章航渝</p>
     </div>
 </body>
 	<script>
@@ -229,61 +229,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
             return true;
         }
 	}
-	function handleDefaultAvatar() {
-  const preview = document.querySelector('.avatar-preview');
-  preview.innerHTML = `
-    <div class="default-avatar">
-      momo╰(￣ω￣ｏ)
-    </div>
-  `;
-}
-
-// 初始化显示默认头像
-handleDefaultAvatar();
-
-document.getElementById('avatarUpload').addEventListener('change', function(e) {
-  const files = e.target.files;
-  const preview = document.querySelector('.avatar-preview');
-  
-  // 如果没有选择文件，显示默认头像
-  if (!files || files.length === 0) {
-    handleDefaultAvatar();
-    return;
-  }
-  
-  preview.innerHTML = '';
-  
-  // 只处理第一个文件（头像通常只需要一个）
-  const file = files[0];
-  
-  if (file.type.startsWith('image/')) {
-    const reader = new FileReader();
-    
-    reader.onload = function(event) {
-      const previewItem = document.createElement('div');
-      previewItem.className = 'preview-item';
-      
-      const img = document.createElement('img');
-      img.src = event.target.result;
-      img.alt = '用户头像';
-      
-      const removeBtn = document.createElement('button');
-      removeBtn.className = 'remove-btn';
-      removeBtn.innerHTML = '×';
-      removeBtn.onclick = function() {
-        previewItem.remove();
-        handleDefaultAvatar();
-        document.getElementById('avatarUpload').value = '';
-      };
-      
-      previewItem.appendChild(img);
-      previewItem.appendChild(removeBtn);
-      preview.appendChild(previewItem);
-    };
-    
-    reader.readAsDataURL(file);
-  }
-});
 	function resetAll(){
 		errInfo.textContent="";
 		errInfo1.textContent="";

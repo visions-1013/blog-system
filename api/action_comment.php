@@ -53,6 +53,10 @@ try {
     // 获取新插入的评论ID
     $comment_id = $pdo->lastInsertId();
     
+    // 检查当前用户是否为管理员
+    $is_admin = isset($_SESSION['role']) && (int)$_SESSION['role'] === 1;
+    $current_user_id = $_SESSION['user_id'];
+    
     // 查询新评论的完整信息（包含用户名）
     $sql = "SELECT c.*, u.username 
             FROM comments c 
@@ -64,6 +68,9 @@ try {
     
     // 格式化时间
     $comment['created_at'] = date('Y-m-d H:i:s', strtotime($comment['created_at']));
+    
+    // 判断当前用户是否可以删除此评论（管理员或评论作者）
+    $comment['can_delete'] = $is_admin || $comment['user_id'] == $current_user_id;
     
     // 返回成功响应
     echo json_encode([

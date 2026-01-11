@@ -120,31 +120,11 @@ try {
 <html>
 <head>
     <meta charset="utf-8">
-    <title>个人中心 - <?php echo htmlspecialchars($username); ?></title>
+    <title>个人中心 - XX微博</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="static\css\profile_style.css">
     <script src="static/js/ajax_req.js"></script>
     <script src="static/js/main.js"></script>
-    <script>
-        // 调试：检查页面是否加载
-        console.log('=== Profile.php 调试信息 ===');
-        console.log('页面已加载');
-        console.log('当前URL:', window.location.href);
-        console.log('当前路径:', window.location.pathname);
-        console.log('DOM是否准备好:', document.readyState);
-        
-        // 手动触发loadFollows用于测试
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(function() {
-                console.log('手动触发loadFollows()');
-                if (typeof loadFollows === 'function') {
-                    loadFollows();
-                } else {
-                    console.error('loadFollows函数不存在！');
-                }
-            }, 500);
-        });
-    </script>
     <style>
         /* 用户头像显示样式 */
         .user-avatar-container {
@@ -284,11 +264,8 @@ try {
     </div>
 
     <div class="footer">
-        © 2026 XX微博 版权所有 | 隐私政策 | 联系我们<br>
-            开发者团队：章航渝、章晨阳、周楷涵<br>
-            本页面为自制微博前端演示，后端功能待后续开发
+        © 2026 XX微博 版权所有 | 隐私政策 | 联系我们<br/>
+            开发者团队：周楷涵、章晨阳、章航渝
     </div>
 </body>
 </html>
-
-                        <span>科技前沿</span>

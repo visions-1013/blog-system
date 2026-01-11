@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html>
 	<head>
 		<meta charset="utf-8">
-		<title>XX客户端--登录界面</title>
+		<title>登录 - XX微博</title>
 		<link rel="stylesheet" href="static\css\style.css">
 	</head>
 	<body>
@@ -129,8 +129,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <div class="auth-footer">
-        <p>© 2026 XX微博 版权所有 | 开发者团队：219</p>
-        <p>本页面为自制微博前端演示，后端功能待后续开发</p>
+        <p>© 2026 XX微博 版权所有 | 隐私政策 | 联系我们</p>
+        <p>开发者团队：周楷涵、章晨阳、章航渝</p>
     </div>
 </body>
 	<script>

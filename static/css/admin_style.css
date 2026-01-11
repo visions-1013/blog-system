@@ -500,3 +500,108 @@ body {
 .delete-btn i {
     font-size: 12px;
 }
+
+/* 评论项 */
+.comment-item {
+    position: relative;
+}
+
+/* 评论内容包装器 */
+.comment-content-wrapper {
+    padding-right: 32px;
+}
+
+/* 删除评论按钮 */
+.delete-comment-btn {
+    position: absolute;
+    right: 0;
+    bottom: 8px;
+    background-color: #9ca3af;
+    color: white;
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: all 0.3s ease;
+    box-shadow: none;
+}
+
+.delete-comment-btn:hover {
+    background-color: #ef4444;
+    transform: scale(1.1);
+}
+
+.delete-comment-btn:active {
+    transform: scale(0.95);
+}
+
+.delete-comment-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.delete-comment-btn i {
+    font-size: 14px;
+}
+
+/* 评论区域样式 */
+.comment-section {
+    margin-top: 16px;
+    padding: 16px;
+    background-color: var(--secondary-blue);
+    border-radius: 12px;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+/* 评论输入区域样式 */
+.comment-input-area {
+    margin-top: 16px;
+    padding: 16px;
+    background-color: var(--secondary-blue);
+    border-radius: 12px;
+}
+
+.comment-input-area textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 12px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    margin-bottom: 12px;
+    background-color: var(--white);
+}
+
+.comment-input-area textarea:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(22, 119, 255, 0.1);
+}
+
+.comment-submit-btn {
+    padding: 8px 24px;
+    background: var(--gradient-blue);
+    color: var(--white);
+    border: none;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(22, 119, 255, 0.3);
+}
+
+.comment-submit-btn:hover {
+    background: var(--gradient-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(22, 119, 255, 0.4);
+}

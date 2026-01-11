@@ -48,7 +48,7 @@ if (!empty($search_keyword)) {
 <!DOCTYPE html>
 <html>
     <head>
-        <title>搜索结果</title>
+        <title>搜索 - XX微博</title>
         <meta charset="utf-8">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         <link rel="stylesheet" href="static\css\search_style.css">
@@ -160,9 +160,9 @@ if (!empty($search_keyword)) {
             
         </div>
         <div class="footer">
-        <p>© 2026 XX微博 版权所有 | 开发者团队：219</p>
-        <p>本页面为自制微博前端演示，后端功能待后续开发</p>
-    </div>
+            © 2026 XX微博 版权所有 | 隐私政策 | 联系我们<br/>
+            开发者团队：周楷涵、章晨阳、章航渝
+        </div>
         </body>
     </html>
     </html>

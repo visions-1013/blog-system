@@ -87,3 +87,16 @@ function showMessage(message, type = 'info') {
         console.log(message);
     }
 }
+
+/**
+ * 删除评论
+ * @param {number} commentId - 评论ID
+ * @param {function} callback - 回调函数，接收两个参数：error, response
+ */
+function deleteComment(commentId, callback) {
+    const data = {
+        comment_id: commentId
+    };
+    
+    ajaxRequest('POST', 'api/action_delete_comment.php', data, callback);
+}

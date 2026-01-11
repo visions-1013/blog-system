@@ -203,7 +203,7 @@ try {
 <html>
 	<head>
 		<meta charset="utf-8">
-		<title>XX微博主页面</title>
+		<title>首页 - XX微博</title>
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 		<link rel="stylesheet" href="static\css\index_style.css">
 		<script src="static/js/ajax_req.js"></script>
@@ -405,11 +405,7 @@ try {
 		</div>
 		<div class="footer">
 			© 2026 XX微博 版权所有 | 隐私政策 | 联系我们<br/>
-			    开发者团队：章航渝、章晨阳、周凯涵<br/>
-			    本页面为自制微博前端演示，后端功能待后续开发
+			    开发者团队：周楷涵、章晨阳、章航渝
 		</div>
 	</body>
 </html>
-</html>
-						</div>
-							<span>旅行日记</span>

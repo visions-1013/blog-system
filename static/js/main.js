@@ -322,17 +322,83 @@ function loadComments(postId, commentSection) {
 // 创建评论DOM元素
 function createCommentElement(comment, commentSection) {
     const commentDiv = document.createElement('div');
-    commentDiv.style.marginBottom = '8px';
-    commentDiv.style.padding = '8px';
-    commentDiv.style.borderBottom = '1px solid #eee';
+    commentDiv.className = 'comment-item';
+    commentDiv.setAttribute('data-comment-id', comment.id);
+    commentDiv.style.marginBottom = '12px';
+    commentDiv.style.padding = '12px';
+    
+    let deleteButtonHtml = '';
+    if (comment.can_delete) {
+        deleteButtonHtml = `
+            <button class="delete-comment-btn" onclick="confirmDeleteComment(this)" title="删除评论">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        `;
+    }
     
     commentDiv.innerHTML = `
-        <strong>${escapeHtml(comment.username)}</strong>
-        <small style="color:#999;">${comment.created_at}</small>
-        <div style="margin-top:4px;">${escapeHtml(comment.content)}</div>
+        <div class="comment-content-wrapper">
+            <strong>${escapeHtml(comment.username)}</strong>
+            <small style="color:#666;margin-left:8px;">${comment.created_at}</small>
+            <div style="margin-top:8px;color:#333;">${escapeHtml(comment.content)}</div>
+            ${deleteButtonHtml}
+        </div>
     `;
     
     commentSection.appendChild(commentDiv);
+}
+
+// 确认删除评论
+function confirmDeleteComment(button) {
+    const commentDiv = button.closest('.comment-item');
+    const commentContent = commentDiv.querySelector('.comment-content-wrapper div:last-of-type').textContent.trim();
+    
+    // 二次确认
+    if (confirm('确定要删除这条评论吗？')) {
+        const commentId = commentDiv.getAttribute('data-comment-id');
+        deleteCommentAction(button, commentId);
+    }
+}
+
+// 执行删除评论
+function deleteCommentAction(button, commentId) {
+    const commentDiv = button.closest('.comment-item');
+    
+    button.disabled = true;
+    button.style.opacity = '0.5';
+    
+    deleteComment(commentId, function(error, response) {
+        if (error) {
+            showMessage(error, 'error');
+            button.disabled = false;
+            button.style.opacity = '1';
+            return;
+        }
+        
+        if (!response.success) {
+            showMessage(response.error, 'error');
+            button.disabled = false;
+            button.style.opacity = '1';
+            return;
+        }
+        
+        // 删除成功，移除评论元素
+        commentDiv.style.transition = 'opacity 0.3s ease';
+        commentDiv.style.opacity = '0';
+        
+        setTimeout(() => {
+            commentDiv.remove();
+            
+            // 检查是否还有评论，如果没有则显示"暂无评论"
+            const commentSection = commentDiv.parentElement;
+            const remainingComments = commentSection.querySelectorAll('.comment-item');
+            if (remainingComments.length === 0) {
+                commentSection.innerHTML = '<p style="text-align:center;color:#999;">暂无评论，快来抢沙发吧！</p>';
+            }
+            
+            showMessage('删除成功！', 'success');
+        }, 300);
+    });
 }
 
 // 提交评论
@@ -606,4 +672,3 @@ function escapeHtml(text) {
     div.textContent = text;
     return div.innerHTML;
 }
-        
